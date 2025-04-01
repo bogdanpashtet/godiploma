@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PROJECT_NAME: ${{ split(github.repository, '/')[1] }}
+  PROJECT_NAME: godiploma
 
 jobs:
   build-docker:
