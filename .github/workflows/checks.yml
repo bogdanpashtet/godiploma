@@ -7,28 +7,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  modules:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.24'
-
-      - name: Download Go modules
-        run: go mod download
-
-      - name: Upload Go modules as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: go-mod-cache
-          path: ~/go/pkg/mod
-
   build:
     runs-on: ubuntu-latest
-    needs: modules
     steps:
       - uses: actions/checkout@v4
 
@@ -36,19 +16,12 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-
-      - name: Download Go modules artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: go-mod-cache
-          path: ~/go/pkg/mod
 
       - name: Build
         run: go build -v ./...
 
   lint:
     runs-on: ubuntu-latest
-    needs: modules
     steps:
       - uses: actions/checkout@v4
 
@@ -56,12 +29,6 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-
-      - name: Download Go modules artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: go-mod-cache
-          path: ~/go/pkg/mod
 
       - name: Lint
         run: go tool golangci-lint run
