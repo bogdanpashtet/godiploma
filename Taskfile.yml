@@ -56,7 +56,7 @@ tasks:
   build-locally:
     desc: "build the app locally"
     cmds:
-      - docker build -t {{ .SERVICE_NAME }}-local --build-arg GOLANG_VERSION={{ .GO_VERSION }} --build-arg APP_VERSION=development . -f ./build/{{ .SERVICE_NAME }}/Dockerfile
+      - docker build -t {{ .SERVICE_NAME }}-local --build-arg GOLANG_VERSION={{ .GO_VERSION }} --build-arg APP_VERSION=development . -f ./Dockerfile
 
   run-locally:
     desc: "run the app locally using the specified config file"
