@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package client.godiploma.file.v1;
+
+import "client/godiploma/file/v1/file.proto";
+
+// FileService file api.
+service FileService {
+  // UploadDocuments uploads the images of client's file.
+  rpc UploadDocuments(UploadDocumentsRequest) returns (UploadDocumentsResponse);
+}
+
+message UploadDocumentsRequest {
+  string meeting_id = 1;
+  repeated client.godiploma.file.v1.Document documents = 4;
+}
+
+message UploadDocumentsResponse {}

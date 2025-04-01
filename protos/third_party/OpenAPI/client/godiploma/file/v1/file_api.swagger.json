@@ -1,0 +1,121 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "client/godiploma/file/v1/file_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "FileService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/file/upload": {
+      "post": {
+        "summary": "UploadDocuments uploads the images of client's file.",
+        "operationId": "FileService_UploadDocuments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UploadDocumentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UploadDocumentsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FileService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Document": {
+      "type": "object",
+      "properties": {
+        "documentType": {
+          "$ref": "#/definitions/v1DocumentType"
+        },
+        "documentData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1DocumentType": {
+      "type": "string",
+      "enum": [
+        "DOCUMENT_TYPE_UNSPECIFIED",
+        "DOCUMENT_TYPE_PASSPORT"
+      ],
+      "default": "DOCUMENT_TYPE_UNSPECIFIED"
+    },
+    "v1UploadDocumentsRequest": {
+      "type": "object",
+      "properties": {
+        "meetingId": {
+          "type": "string"
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Document"
+          }
+        }
+      }
+    },
+    "v1UploadDocumentsResponse": {
+      "type": "object"
+    }
+  }
+}

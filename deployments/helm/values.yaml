@@ -1,0 +1,37 @@
+replicaCount: 1
+
+configMap:
+  enabled: true
+  data:
+    config.yaml: |
+      grpc:
+        port: 13013
+      appName: "godiploma"
+      httpHealth:
+        port: 8080
+        readyEndpoint: "/readyz"
+        liveEndpoint: "/livez"
+
+image:
+  repository: godiploma
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 10m
+  limits:
+    memory: 256Mi
+    cpu: 100m
+
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

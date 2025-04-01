@@ -1,0 +1,127 @@
+version: "3"
+
+vars:
+  SERVICE_NAME: "godiploma"
+  APP_VERSION: v0.0.1
+  # Go env.
+  GOBIN: $(pwd)/bin
+  # Lib versions.
+  GO_VERSION: 1.24.0
+
+tasks:
+  default:
+    cmds:
+      - task: go-mod-tidy
+      - task: fmt
+      - task: lint
+      - task: test
+      - task: isolation-tests
+
+  gen-mocks:
+    desc: "Generate mocks"
+    cmds:
+      - go tool mockery
+
+  fmt:
+    desc: "format code"
+    cmds:
+      - gofmt -w -l .
+
+  lint:
+    desc: "run lint"
+    cmds:
+      - go tool golangci-lint run {{ default "--timeout=10m" .CLI_ARGS }}
+
+  pretty:
+    desc: "prettify code"
+    deps: [ fmt, lint ]
+
+  build-helm-dependencies:
+    desc: "build helm dependencies (app-template)"
+    cmds:
+      - helm dependency build ./deployments/helm/{{ .SERVICE_NAME }}
+
+  update-helm-dependencies:
+    desc: "build update dependencies (app-template)"
+    cmds:
+      - helm dependency update ./deployments/helm/{{ .SERVICE_NAME }}
+
+  test:
+    desc: "run unit tests with coverage"
+    cmds:
+      - GOPATH=$GOPATH GOBIN={{ .GOBIN }} go clean --testcache
+      - GOPATH=$GOPATH GOBIN={{ .GOBIN }} go test -v -race $(go list ./... | grep -v test) -coverprofile=.coverage.out
+      - GOPATH=$GOPATH GOBIN={{ .GOBIN }} go tool cover -func=.coverage.out | tail -n1
+
+  build-locally:
+    desc: "build the app locally"
+    cmds:
+      - GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o ./bin/app ./cmd/{{ .SERVICE_NAME }}
+      - docker build -t {{ .SERVICE_NAME }}-local --build-arg GOLANG_VERSION={{ .GO_VERSION }}-alpine --build-arg APP_VERSION=development . -f ./build/{{ .SERVICE_NAME }}/Dockerfile.local
+
+  run-locally:
+    desc: "run the app locally using the specified config file"
+    cmds:
+      - CONFIG_PATH="./config/config.yaml" go run -trimpath ./cmd/{{ .SERVICE_NAME }}/main.go
+
+  isolation-tests:
+    desc: "run isolation tests"
+    dotenv: [ ".test.env" ]
+    cmds:
+      - GOPATH=$GOPATH go clean --testcache
+      - GOPATH=$GOPATH go test -race -v ./test/cases/...
+
+  go-mod-tidy:
+    desc: "Run go mod tidy"
+    cmds:
+      - go mod tidy
+
+  update-libraries:
+    desc: "Update versions of used libraries"
+    cmds:
+      - go get -u ./... && go mod tidy
+
+# GENERATE PROTO
+  gen-proto:
+    cmds:
+      - task: lint-proto
+      - task: generate
+  buf:
+    desc: "Run buf"
+    summary: |
+      Use this task if you want to run an arbitrary command.
+      
+      Example:
+      
+        # Update proto dependencies
+        task buf -- mod update proto/
+    deps:
+      - build-buf
+    cmds:
+      - ./protos/scripts/buf/run.sh buf {{ .CLI_ARGS }}
+  lint-proto:
+    desc: "Lint proto files"
+    deps:
+      - build-buf
+    cmds:
+      - ./protos/scripts/buf/run.sh buf lint
+      - ./protos/scripts/buf/run.sh buf breaking --against ".git#ref=$(git merge-base main HEAD)" || true
+  generate:
+    aliases:
+      - proto_gen
+      - gen
+    desc: "Generate code from proto files"
+    deps:
+      - build-buf
+    cmds:
+      - ./protos/scripts/buf/run.sh ./protos/scripts/buf/cleanup.sh
+      - ./protos/scripts/buf/run.sh buf generate
+      - ./protos/scripts/buf/run.sh ./protos/scripts/grpcgateway/gen_gw.sh
+      - ./protos/scripts/buf/go-code-compile-check.sh
+  build-buf:
+    internal: true
+    sources:
+      - ./protos/build/buf/**/*
+    run: once
+    cmds:
+      - ./protos/scripts/buf/build-image.sh

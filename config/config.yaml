@@ -1,0 +1,10 @@
+grpc:
+  port: 13013
+appName: "godiploma"
+httpHealth:
+  port: 8080
+  readyEndpoint: "/readyz"
+  liveEndpoint: "/livez"
+metrics:
+  port: 8081
+  endpoint: "/metrics"

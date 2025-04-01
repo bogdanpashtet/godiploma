@@ -1,0 +1,20 @@
+version: v1
+breaking:
+  use:
+    - PACKAGE
+lint:
+  use:
+    - DEFAULT
+    - COMMENTS
+    - PACKAGE_VERSION_SUFFIX
+  except:
+    - COMMENT_FIELD
+    - COMMENT_ENUM_VALUE
+    - COMMENT_MESSAGE
+    - COMMENT_ONEOF
+    - COMMENT_ENUM
+    - COMMENT_SERVICE
+    - COMMENT_RPC
+  enum_zero_value_suffix: _UNSPECIFIED
+  service_suffix: Service
+

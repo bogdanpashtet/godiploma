@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package client.godiploma.file.v1;
+
+enum DocumentType {
+  DOCUMENT_TYPE_UNSPECIFIED = 0;
+  DOCUMENT_TYPE_PASSPORT = 1;
+}
+
+message Document {
+  DocumentType document_type = 1;
+  bytes document_data = 2;
+}
