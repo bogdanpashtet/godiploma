@@ -7,7 +7,7 @@ on:
       - completed
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}
   PROJECT_NAME: godiploma
 
