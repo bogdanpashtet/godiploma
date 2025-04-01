@@ -14,7 +14,7 @@ RUN mkdir /user && \
 WORKDIR /opt/godiploma
 
 # Import the code from the context.
-COPY . .
+COPY build/godiploma .
 
 # Add timezones.
 RUN apk update && apk add --no-cache tzdata
