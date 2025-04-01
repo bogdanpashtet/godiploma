@@ -1,5 +1,5 @@
 # Define golang version.
-ARG GOLANG_VERSION
+ARG GOLANG_VERSION=1.24.0
 
 # First stage: build the executable.
 FROM golang:$GOLANG_VERSION-alpine AS builder

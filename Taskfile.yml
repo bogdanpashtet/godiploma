@@ -56,8 +56,7 @@ tasks:
   build-locally:
     desc: "build the app locally"
     cmds:
-      - GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o ./bin/app ./cmd/{{ .SERVICE_NAME }}
-      - docker build -t {{ .SERVICE_NAME }}-local --build-arg GOLANG_VERSION={{ .GO_VERSION }}-alpine --build-arg APP_VERSION=development . -f ./build/{{ .SERVICE_NAME }}/Dockerfile.local
+      - docker build -t {{ .SERVICE_NAME }}-local --build-arg GOLANG_VERSION={{ .GO_VERSION }} --build-arg APP_VERSION=development . -f ./build/{{ .SERVICE_NAME }}/Dockerfile
 
   run-locally:
     desc: "run the app locally using the specified config file"
