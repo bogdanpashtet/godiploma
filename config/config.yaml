@@ -1,6 +1,7 @@
 grpc:
   port: 13013
 appName: "godiploma"
+version: "v0.0.1"
 httpHealth:
   port: 8080
   readyEndpoint: "/readyz"

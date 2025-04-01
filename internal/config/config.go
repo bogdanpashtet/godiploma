@@ -12,6 +12,7 @@ const defaultConfigPath = "/app/config/config.yaml"
 type AppConfig struct {
 	Env        Env              `yaml:"env"`
 	AppName    string           `yaml:"appName"`
+	Version    string           `yaml:"version"`
 	HTTPHealth HTTPHealthConfig `yaml:"httpHealth"`
 	Metrics    MetricsConfig    `yaml:"metrics"`
 	Grpc       GRPCBase         `yaml:"grpc"`

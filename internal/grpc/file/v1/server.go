@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bogdanpashtet/godiploma/internal/log"
 	"go.uber.org/fx"
@@ -15,11 +16,9 @@ const kind = "FileServer"
 type Params struct {
 	fx.In
 
-	//Service Service
 	Logger log.Logger
 }
 type Server struct {
-	//svc Service
 	l log.Logger
 
 	filev1.UnimplementedFileServiceServer
@@ -27,7 +26,6 @@ type Server struct {
 
 func NewServer(params Params) *Server {
 	return &Server{
-		//svc: params.Service,
 		l: params.Logger,
 	}
 }
@@ -37,6 +35,6 @@ func (s *Server) Register(gRPCServer *grpc.Server) {
 }
 
 func (s *Server) UploadDocuments(_ context.Context, _ *filev1.UploadDocumentsRequest) (*filev1.UploadDocumentsResponse, error) {
-	s.l.Info("hello from UploadDocuments")
+	s.l.Info(fmt.Sprintf("%s: hello from UploadDocuments", kind))
 	return &filev1.UploadDocumentsResponse{}, nil
 }

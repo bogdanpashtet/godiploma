@@ -70,8 +70,8 @@ func logger(lc fx.Lifecycle) (log.Logger, error) {
 
 func health(lc fx.Lifecycle, l log.Logger, cfg *config.AppConfig) {
 	h, _ := healthgo.New(healthgo.WithComponent(healthgo.Component{
-		Name: cfg.AppName,
-		//Version: "v1.0",
+		Name:    cfg.AppName,
+		Version: cfg.Version,
 	}))
 
 	mux := http.NewServeMux()
@@ -79,8 +79,9 @@ func health(lc fx.Lifecycle, l log.Logger, cfg *config.AppConfig) {
 	mux.Handle(cfg.HTTPHealth.ReadyEndpoint, h.Handler())
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.HTTPHealth.Port),
-		Handler: mux,
+		Addr:              fmt.Sprintf(":%d", cfg.HTTPHealth.Port),
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	lc.Append(fx.Hook{
