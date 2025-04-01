@@ -25,7 +25,7 @@ ARG APP_VERSION
 # Build the executable.
 RUN CGO_ENABLED=0 go build \
     -trimpath \
-    -mod=vendor \
+    -mod=mod \
     -ldflags="-X 'main.Version=${APP_VERSION}'" \
     -o ./bin/godiploma ./cmd/godiploma
 
