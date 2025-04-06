@@ -96,17 +96,17 @@ tasks:
   bump:patch:
     desc: 'Up patch version (0.0.X)'
     cmds:
-      - bump-my-version patch
+      - bump-my-version bump patch
 
   bump:minor:
     desc: 'Up minor version (0.X.0)'
     cmds:
-      - bump-my-version minor
+      - bump-my-version bump minor
 
   bump:major:
     desc: 'Up major version (X.0.0)'
     cmds:
-      - bump-my-version major
+      - bump-my-version bump major
 
   bump:push:
     desc: 'Send last commits and tags to remote repository ({{.REMOTE}})'
