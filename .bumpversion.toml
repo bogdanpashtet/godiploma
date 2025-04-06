@@ -12,14 +12,18 @@
     search = 'version: "v{current_version}"'
     replace = 'version: "v{new_version}"'
 
-[file."deployments/helm/Chart.yaml"]
-    search = 'appVersion: "{current_version}"'
-    replace = 'appVersion: "{new_version}"'
-
-[file."deployments/helm/values.yaml"]
-    search = 'version: "v{current_version}"'
-    replace = 'version: "v{new_version}"'
-
-[file."README.md"]
-    search = 'version: v{current_version}'
-    replace = 'version: v{new_version}'
+#[file."deployments/helm/Chart.yaml"]
+#    search = 'appVersion: "{current_version}"'
+#    replace = 'appVersion: "{new_version}"'
+#
+#[file."deployments/helm/values.yaml"]
+#    search = 'version: "v{current_version}"'
+#    replace = 'version: "v{new_version}"'
+#
+#[file."README.md"]
+#    search = 'version: v{current_version}'
+#    replace = 'version: v{new_version}'
+#
+#[file."Taskfile.yml"]
+#    search = 'APP_VERSION: v{current_version}'
+#    replace = 'APP_VERSION: v{new_version}}'
