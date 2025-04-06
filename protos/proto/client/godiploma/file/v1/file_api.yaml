@@ -1,8 +1,0 @@
-type: google.api.Service
-config_version: 3
-
-http:
-  rules:
-    - selector: client.godiploma.file.v1.FileService.UploadDocuments
-      post: "/api/v1/file/upload"
-      body: "*"

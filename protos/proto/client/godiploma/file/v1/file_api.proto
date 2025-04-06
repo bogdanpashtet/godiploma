@@ -8,12 +8,12 @@ import "validate/validate.proto";
 // FileService file api.
 service FileService {
   // UploadDocuments uploads the images of client's file.
-  rpc UploadDocuments(UploadDocumentsRequest) returns (UploadDocumentsResponse);
+  rpc UploadFiles(UploadFilesRequest) returns (UploadFilesResponse);
 }
 
-message UploadDocumentsRequest {
+message UploadFilesRequest {
   string request_id = 1 [(validate.rules).string.uuid = true];
-  repeated Document documents = 2 [(validate.rules).repeated.min_items = 1];
+  repeated File documents = 2 [(validate.rules).repeated.min_items = 1];
 }
 
-message UploadDocumentsResponse {}
+message UploadFilesResponse {}

@@ -4,7 +4,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Execute run.sh and check compilation, saving the output to a variable
-OUTPUT=$("$DIR/run.sh" go build ./protos/gen/go/... 2>&1)
+OUTPUT=$(go build ./protos/gen/go/... 2>&1)
 
 # Check if the last executed command failed (non-zero exit status)
 if [ $? -ne 0 ]; then

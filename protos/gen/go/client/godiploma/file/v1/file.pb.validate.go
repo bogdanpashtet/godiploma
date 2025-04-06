@@ -35,30 +35,29 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on Document with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *Document) Validate() error {
+// Validate checks the field values on File with the rules defined in the proto
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
+func (m *File) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on Document with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in DocumentMultiError, or nil
-// if none found.
-func (m *Document) ValidateAll() error {
+// ValidateAll checks the field values on File with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in FileMultiError, or nil if none found.
+func (m *File) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *Document) validate(all bool) error {
+func (m *File) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if _, ok := DocumentType_name[int32(m.GetDocumentType())]; !ok {
-		err := DocumentValidationError{
+	if _, ok := Type_name[int32(m.GetDocumentType())]; !ok {
+		err := FileValidationError{
 			field:  "DocumentType",
 			reason: "value must be one of the defined enum values",
 		}
@@ -69,7 +68,7 @@ func (m *Document) validate(all bool) error {
 	}
 
 	if l := len(m.GetDocumentData()); l < 1 || l > 16777216 {
-		err := DocumentValidationError{
+		err := FileValidationError{
 			field:  "DocumentData",
 			reason: "value length must be between 1 and 16777216 bytes, inclusive",
 		}
@@ -80,18 +79,18 @@ func (m *Document) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return DocumentMultiError(errors)
+		return FileMultiError(errors)
 	}
 
 	return nil
 }
 
-// DocumentMultiError is an error wrapping multiple validation errors returned
-// by Document.ValidateAll() if the designated constraints aren't met.
-type DocumentMultiError []error
+// FileMultiError is an error wrapping multiple validation errors returned by
+// File.ValidateAll() if the designated constraints aren't met.
+type FileMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m DocumentMultiError) Error() string {
+func (m FileMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -100,11 +99,11 @@ func (m DocumentMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m DocumentMultiError) AllErrors() []error { return m }
+func (m FileMultiError) AllErrors() []error { return m }
 
-// DocumentValidationError is the validation error returned by
-// Document.Validate if the designated constraints aren't met.
-type DocumentValidationError struct {
+// FileValidationError is the validation error returned by File.Validate if the
+// designated constraints aren't met.
+type FileValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -112,22 +111,22 @@ type DocumentValidationError struct {
 }
 
 // Field function returns field value.
-func (e DocumentValidationError) Field() string { return e.field }
+func (e FileValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DocumentValidationError) Reason() string { return e.reason }
+func (e FileValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DocumentValidationError) Cause() error { return e.cause }
+func (e FileValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DocumentValidationError) Key() bool { return e.key }
+func (e FileValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DocumentValidationError) ErrorName() string { return "DocumentValidationError" }
+func (e FileValidationError) ErrorName() string { return "FileValidationError" }
 
 // Error satisfies the builtin error interface
-func (e DocumentValidationError) Error() string {
+func (e FileValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -139,14 +138,14 @@ func (e DocumentValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDocument.%s: %s%s",
+		"invalid %sFile.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DocumentValidationError{}
+var _ error = FileValidationError{}
 
 var _ interface {
 	Field() string
@@ -154,4 +153,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DocumentValidationError{}
+} = FileValidationError{}

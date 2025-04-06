@@ -38,22 +38,22 @@ var (
 // define the regex for a UUID once up-front
 var _file_api_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
-// Validate checks the field values on UploadDocumentsRequest with the rules
+// Validate checks the field values on UploadFilesRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UploadDocumentsRequest) Validate() error {
+func (m *UploadFilesRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UploadDocumentsRequest with the rules
+// ValidateAll checks the field values on UploadFilesRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UploadDocumentsRequestMultiError, or nil if none found.
-func (m *UploadDocumentsRequest) ValidateAll() error {
+// UploadFilesRequestMultiError, or nil if none found.
+func (m *UploadFilesRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UploadDocumentsRequest) validate(all bool) error {
+func (m *UploadFilesRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -61,7 +61,7 @@ func (m *UploadDocumentsRequest) validate(all bool) error {
 	var errors []error
 
 	if err := m._validateUuid(m.GetRequestId()); err != nil {
-		err = UploadDocumentsRequestValidationError{
+		err = UploadFilesRequestValidationError{
 			field:  "RequestId",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -73,7 +73,7 @@ func (m *UploadDocumentsRequest) validate(all bool) error {
 	}
 
 	if len(m.GetDocuments()) < 1 {
-		err := UploadDocumentsRequestValidationError{
+		err := UploadFilesRequestValidationError{
 			field:  "Documents",
 			reason: "value must contain at least 1 item(s)",
 		}
@@ -90,7 +90,7 @@ func (m *UploadDocumentsRequest) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, UploadDocumentsRequestValidationError{
+					errors = append(errors, UploadFilesRequestValidationError{
 						field:  fmt.Sprintf("Documents[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -98,7 +98,7 @@ func (m *UploadDocumentsRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, UploadDocumentsRequestValidationError{
+					errors = append(errors, UploadFilesRequestValidationError{
 						field:  fmt.Sprintf("Documents[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -107,7 +107,7 @@ func (m *UploadDocumentsRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return UploadDocumentsRequestValidationError{
+				return UploadFilesRequestValidationError{
 					field:  fmt.Sprintf("Documents[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -118,13 +118,13 @@ func (m *UploadDocumentsRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return UploadDocumentsRequestMultiError(errors)
+		return UploadFilesRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-func (m *UploadDocumentsRequest) _validateUuid(uuid string) error {
+func (m *UploadFilesRequest) _validateUuid(uuid string) error {
 	if matched := _file_api_uuidPattern.MatchString(uuid); !matched {
 		return errors.New("invalid uuid format")
 	}
@@ -132,13 +132,13 @@ func (m *UploadDocumentsRequest) _validateUuid(uuid string) error {
 	return nil
 }
 
-// UploadDocumentsRequestMultiError is an error wrapping multiple validation
-// errors returned by UploadDocumentsRequest.ValidateAll() if the designated
-// constraints aren't met.
-type UploadDocumentsRequestMultiError []error
+// UploadFilesRequestMultiError is an error wrapping multiple validation errors
+// returned by UploadFilesRequest.ValidateAll() if the designated constraints
+// aren't met.
+type UploadFilesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UploadDocumentsRequestMultiError) Error() string {
+func (m UploadFilesRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -147,11 +147,11 @@ func (m UploadDocumentsRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UploadDocumentsRequestMultiError) AllErrors() []error { return m }
+func (m UploadFilesRequestMultiError) AllErrors() []error { return m }
 
-// UploadDocumentsRequestValidationError is the validation error returned by
-// UploadDocumentsRequest.Validate if the designated constraints aren't met.
-type UploadDocumentsRequestValidationError struct {
+// UploadFilesRequestValidationError is the validation error returned by
+// UploadFilesRequest.Validate if the designated constraints aren't met.
+type UploadFilesRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -159,24 +159,24 @@ type UploadDocumentsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UploadDocumentsRequestValidationError) Field() string { return e.field }
+func (e UploadFilesRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UploadDocumentsRequestValidationError) Reason() string { return e.reason }
+func (e UploadFilesRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UploadDocumentsRequestValidationError) Cause() error { return e.cause }
+func (e UploadFilesRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UploadDocumentsRequestValidationError) Key() bool { return e.key }
+func (e UploadFilesRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UploadDocumentsRequestValidationError) ErrorName() string {
-	return "UploadDocumentsRequestValidationError"
+func (e UploadFilesRequestValidationError) ErrorName() string {
+	return "UploadFilesRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UploadDocumentsRequestValidationError) Error() string {
+func (e UploadFilesRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -188,14 +188,14 @@ func (e UploadDocumentsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUploadDocumentsRequest.%s: %s%s",
+		"invalid %sUploadFilesRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UploadDocumentsRequestValidationError{}
+var _ error = UploadFilesRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -203,24 +203,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UploadDocumentsRequestValidationError{}
+} = UploadFilesRequestValidationError{}
 
-// Validate checks the field values on UploadDocumentsResponse with the rules
+// Validate checks the field values on UploadFilesResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UploadDocumentsResponse) Validate() error {
+func (m *UploadFilesResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UploadDocumentsResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on UploadFilesResponse with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UploadDocumentsResponseMultiError, or nil if none found.
-func (m *UploadDocumentsResponse) ValidateAll() error {
+// UploadFilesResponseMultiError, or nil if none found.
+func (m *UploadFilesResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UploadDocumentsResponse) validate(all bool) error {
+func (m *UploadFilesResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -228,19 +228,19 @@ func (m *UploadDocumentsResponse) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return UploadDocumentsResponseMultiError(errors)
+		return UploadFilesResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// UploadDocumentsResponseMultiError is an error wrapping multiple validation
-// errors returned by UploadDocumentsResponse.ValidateAll() if the designated
+// UploadFilesResponseMultiError is an error wrapping multiple validation
+// errors returned by UploadFilesResponse.ValidateAll() if the designated
 // constraints aren't met.
-type UploadDocumentsResponseMultiError []error
+type UploadFilesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UploadDocumentsResponseMultiError) Error() string {
+func (m UploadFilesResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -249,11 +249,11 @@ func (m UploadDocumentsResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UploadDocumentsResponseMultiError) AllErrors() []error { return m }
+func (m UploadFilesResponseMultiError) AllErrors() []error { return m }
 
-// UploadDocumentsResponseValidationError is the validation error returned by
-// UploadDocumentsResponse.Validate if the designated constraints aren't met.
-type UploadDocumentsResponseValidationError struct {
+// UploadFilesResponseValidationError is the validation error returned by
+// UploadFilesResponse.Validate if the designated constraints aren't met.
+type UploadFilesResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -261,24 +261,24 @@ type UploadDocumentsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e UploadDocumentsResponseValidationError) Field() string { return e.field }
+func (e UploadFilesResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UploadDocumentsResponseValidationError) Reason() string { return e.reason }
+func (e UploadFilesResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UploadDocumentsResponseValidationError) Cause() error { return e.cause }
+func (e UploadFilesResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UploadDocumentsResponseValidationError) Key() bool { return e.key }
+func (e UploadFilesResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UploadDocumentsResponseValidationError) ErrorName() string {
-	return "UploadDocumentsResponseValidationError"
+func (e UploadFilesResponseValidationError) ErrorName() string {
+	return "UploadFilesResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UploadDocumentsResponseValidationError) Error() string {
+func (e UploadFilesResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -290,14 +290,14 @@ func (e UploadDocumentsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUploadDocumentsResponse.%s: %s%s",
+		"invalid %sUploadFilesResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UploadDocumentsResponseValidationError{}
+var _ error = UploadFilesResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -305,4 +305,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UploadDocumentsResponseValidationError{}
+} = UploadFilesResponseValidationError{}

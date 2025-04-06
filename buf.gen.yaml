@@ -1,21 +1,22 @@
-version: v1
+version: v2
+
 managed:
   enabled: true
-  go_package_prefix:
-    default: github.com/bogdanpashtet/godiploma/protos/gen/go
+  override:
+    - file_option: go_package_prefix
+      value: github.com/bogdanpashtet/godiploma/protos/gen/go
 plugins:
-  - plugin: go
+  - local: ["go", "tool", "protoc-gen-go"]
     out: protos/gen/go
     opt:
       - paths=source_relative
       - Mvalidate/validate.proto=github.com/envoyproxy/protoc-gen-validate/validate
-  - plugin: go-grpc
+  - local: ["go", "tool", "protoc-gen-go-grpc"]
     out: protos/gen/go
     opt:
       - paths=source_relative
       - require_unimplemented_servers=false
-  - plugin: validate
+  - local: ["go", "tool", "protoc-gen-validate-go"]
     out: protos/gen/go
     opt:
-      - lang=go
       - paths=source_relative

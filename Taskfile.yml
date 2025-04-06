@@ -85,42 +85,17 @@ tasks:
     cmds:
       - task: lint-proto
       - task: generate
-  buf:
-    desc: "Run buf"
-    summary: |
-      Use this task if you want to run an arbitrary command.
-      
-      Example:
-      
-        # Update proto dependencies
-        task buf -- mod update proto/
-    deps:
-      - build-buf
-    cmds:
-      - ./protos/scripts/buf/run.sh buf {{ .CLI_ARGS }}
   lint-proto:
     desc: "Lint proto files"
-    deps:
-      - build-buf
     cmds:
-      - ./protos/scripts/buf/run.sh buf lint
-      - ./protos/scripts/buf/run.sh buf breaking --against ".git#ref=$(git merge-base main HEAD)" || true
+      - go tool buf lint
+      - go tool buf breaking --against ".git#ref=$(git merge-base main HEAD)" || true
   generate:
     aliases:
       - proto_gen
       - gen
     desc: "Generate code from proto files"
-    deps:
-      - build-buf
     cmds:
-      - ./protos/scripts/buf/run.sh ./protos/scripts/buf/cleanup.sh
-      - ./protos/scripts/buf/run.sh buf generate
-      - ./protos/scripts/buf/run.sh ./protos/scripts/grpcgateway/gen_gw.sh
+      - ./protos/scripts/buf/cleanup.sh
+      - go tool buf generate
       - ./protos/scripts/buf/go-code-compile-check.sh
-  build-buf:
-    internal: true
-    sources:
-      - ./protos/build/buf/**/*
-    run: once
-    cmds:
-      - ./protos/scripts/buf/build-image.sh

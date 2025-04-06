@@ -6,7 +6,6 @@ breaking:
     - PACKAGE
 lint:
   use:
-    - DEFAULT
     - COMMENTS
     - PACKAGE_VERSION_SUFFIX
   except:
