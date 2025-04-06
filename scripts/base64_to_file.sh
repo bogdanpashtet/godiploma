@@ -16,7 +16,7 @@ fi
 
 INPUT_FILE="$1"
 OUTPUT_TYPE="$2"          # e.g., png, jpg, pdf
-TARGET_DIR="./files/res"  # Target directory
+TARGET_DIR="./files/$OUTPUT_TYPE/res"  # Target directory
 
 # Check if input file exists
 if [ ! -f "$INPUT_FILE" ]; then

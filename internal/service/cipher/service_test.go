@@ -22,7 +22,7 @@ func createTestPNG(t *testing.T, width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			img.SetRGBA(x, y, color.RGBA{R: uint8(x % 255), G: uint8(y % 255), B: uint8((x + y) % 255), A: 255})
+			img.SetRGBA(x, y, color.RGBA{R: uint8(x % 255), G: uint8(y % 255), B: uint8((x + y) % 255), A: 255}) //nolint:gosec
 		}
 	}
 	var buf bytes.Buffer
@@ -97,6 +97,7 @@ func TestCipherLSBTableDriven(t *testing.T) {
 			ctx:       t.Context(),
 			wantErr:   false,
 			checkOutput: func(t *testing.T, output filed.File, input filed.File) {
+				t.Helper()
 				require.NotEmpty(t, output.File)
 				assert.Equal(t, filed.TypePNG, output.Metadata.Type)
 				assert.NotEqual(t, input.File, output.File)
@@ -152,6 +153,7 @@ func TestCipherLSBTableDriven(t *testing.T) {
 			ctx:       t.Context(),
 			wantErr:   false,
 			checkOutput: func(t *testing.T, output filed.File, input filed.File) {
+				t.Helper()
 				require.NotEmpty(t, output.File)
 				assert.NotEqual(t, input.File, output.File)
 

@@ -13,6 +13,7 @@ func ErrorFromDomain(err error) error {
 		return status.Error(codes.Canceled, err.Error())
 	case codes.DeadlineExceeded:
 		return status.Error(codes.DeadlineExceeded, err.Error())
+	default:
 	}
 
 	return status.Error(codes.Internal, err.Error())
