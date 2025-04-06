@@ -1,6 +1,6 @@
 [tool.bumpversion]
-    current_version = "0.2.0"
-    commit = false
+    current_version = "0.3.0"
+    commit = true
     tag = true
     message = "Bump version {current_version} → {new_version}"
     tag_name = "v{new_version}"
