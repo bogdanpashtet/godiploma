@@ -7,22 +7,27 @@
     parse = '(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)'
     serialize = ["{major}.{minor}.{patch}"]
 
-[file."config/config.yaml"]
+[[tool.bumpversion.files]]
+    filename = "config/config.yaml"
     search = 'version: "v{current_version}"'
     replace = 'version: "v{new_version}"'
 
-#[file."deployments/helm/Chart.yaml"]
-#    search = 'appVersion: "{current_version}"'
-#    replace = 'appVersion: "{new_version}"'
-#
-#[file."deployments/helm/values.yaml"]
-#    search = 'version: "v{current_version}"'
-#    replace = 'version: "v{new_version}"'
-#
-#[file."README.md"]
-#    search = 'version: v{current_version}'
-#    replace = 'version: v{new_version}'
-#
-#[file."Taskfile.yml"]
-#    search = 'APP_VERSION: v{current_version}'
-#    replace = 'APP_VERSION: v{new_version}}'
+[[tool.bumpversion.files]]
+    filename = "deployments/helm/Chart.yaml"
+    search = 'appVersion: "{current_version}"'
+    replace = 'appVersion: "{new_version}"'
+
+[[tool.bumpversion.files]]
+    filename = "deployments/helm/values.yaml"
+    search = 'version: "v{current_version}"'
+    replace = 'version: "v{new_version}"'
+
+[[tool.bumpversion.files]]
+    filename = "README.md"
+    search = 'version: v{current_version}'
+    replace = 'version: v{new_version}'
+
+[[tool.bumpversion.files]]
+    filename = "Taskfile.yml"
+    search = 'APP_VERSION: v{current_version}'
+    replace = 'APP_VERSION: v{new_version}'
