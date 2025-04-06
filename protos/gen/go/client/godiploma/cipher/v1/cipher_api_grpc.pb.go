@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	CipherService_CreateStegoImage_FullMethodName = "/client.godiploma.cipher.v1.CipherService/CreateStegoImage"
+	CipherService_Extract_FullMethodName          = "/client.godiploma.cipher.v1.CipherService/Extract"
 )
 
 // CipherServiceClient is the client API for CipherService service.
@@ -30,6 +31,8 @@ const (
 type CipherServiceClient interface {
 	// CreateStegoImage creates a stego image.
 	CreateStegoImage(ctx context.Context, in *CreateStegoImageRequest, opts ...grpc.CallOption) (*CreateStegoImageResponse, error)
+	// Extract extracts plaintext from a stego image.
+	Extract(ctx context.Context, in *ExtractRequest, opts ...grpc.CallOption) (*ExtractResponse, error)
 }
 
 type cipherServiceClient struct {
@@ -50,6 +53,16 @@ func (c *cipherServiceClient) CreateStegoImage(ctx context.Context, in *CreateSt
 	return out, nil
 }
 
+func (c *cipherServiceClient) Extract(ctx context.Context, in *ExtractRequest, opts ...grpc.CallOption) (*ExtractResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExtractResponse)
+	err := c.cc.Invoke(ctx, CipherService_Extract_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CipherServiceServer is the server API for CipherService service.
 // All implementations should embed UnimplementedCipherServiceServer
 // for forward compatibility.
@@ -58,6 +71,8 @@ func (c *cipherServiceClient) CreateStegoImage(ctx context.Context, in *CreateSt
 type CipherServiceServer interface {
 	// CreateStegoImage creates a stego image.
 	CreateStegoImage(context.Context, *CreateStegoImageRequest) (*CreateStegoImageResponse, error)
+	// Extract extracts plaintext from a stego image.
+	Extract(context.Context, *ExtractRequest) (*ExtractResponse, error)
 }
 
 // UnimplementedCipherServiceServer should be embedded to have
@@ -69,6 +84,9 @@ type UnimplementedCipherServiceServer struct{}
 
 func (UnimplementedCipherServiceServer) CreateStegoImage(context.Context, *CreateStegoImageRequest) (*CreateStegoImageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateStegoImage not implemented")
+}
+func (UnimplementedCipherServiceServer) Extract(context.Context, *ExtractRequest) (*ExtractResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Extract not implemented")
 }
 func (UnimplementedCipherServiceServer) testEmbeddedByValue() {}
 
@@ -108,6 +126,24 @@ func _CipherService_CreateStegoImage_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CipherService_Extract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExtractRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CipherServiceServer).Extract(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CipherService_Extract_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CipherServiceServer).Extract(ctx, req.(*ExtractRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CipherService_ServiceDesc is the grpc.ServiceDesc for CipherService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -118,6 +154,10 @@ var CipherService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateStegoImage",
 			Handler:    _CipherService_CreateStegoImage_Handler,
+		},
+		{
+			MethodName: "Extract",
+			Handler:    _CipherService_Extract_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

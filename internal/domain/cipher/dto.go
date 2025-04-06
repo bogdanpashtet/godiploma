@@ -7,3 +7,8 @@ type CreateStegoImageRequest struct {
 	Plaintext string
 	Files     []filed.File
 }
+
+type ExtractRequest struct {
+	Method Method
+	Files  []filed.File
+}

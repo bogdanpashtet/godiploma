@@ -21,3 +21,17 @@ func convertCreateStegoImageToDomain(req *cipherv1.CreateStegoImageRequest) ciph
 		}),
 	}
 }
+
+func convertExtractToDomain(req *cipherv1.ExtractRequest) cipherd.ExtractRequest {
+	return cipherd.ExtractRequest{
+		Method: cipherd.ConvertMethodToDomain(req.Method),
+		Files: lo.Map(req.Files, func(file *cipherv1.File, _ int) filed.File {
+			return filed.File{
+				Metadata: filed.Metadata{
+					Type: filed.ConvertTypeToDomain(file.Metadata.Type),
+				},
+				File: file.DocumentData,
+			}
+		}),
+	}
+}

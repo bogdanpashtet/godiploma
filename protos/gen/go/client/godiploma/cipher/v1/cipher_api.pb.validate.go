@@ -377,3 +377,294 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateStegoImageResponseValidationError{}
+
+// Validate checks the field values on ExtractRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ExtractRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ExtractRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ExtractRequestMultiError,
+// or nil if none found.
+func (m *ExtractRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ExtractRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetRequestId()); err != nil {
+		err = ExtractRequestValidationError{
+			field:  "RequestId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := _ExtractRequest_Method_NotInLookup[m.GetMethod()]; ok {
+		err := ExtractRequestValidationError{
+			field:  "Method",
+			reason: "value must not be in list [METHOD_UNSPECIFIED]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := Method_name[int32(m.GetMethod())]; !ok {
+		err := ExtractRequestValidationError{
+			field:  "Method",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(m.GetFiles()) < 1 {
+		err := ExtractRequestValidationError{
+			field:  "Files",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	for idx, item := range m.GetFiles() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ExtractRequestValidationError{
+						field:  fmt.Sprintf("Files[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ExtractRequestValidationError{
+						field:  fmt.Sprintf("Files[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ExtractRequestValidationError{
+					field:  fmt.Sprintf("Files[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ExtractRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ExtractRequest) _validateUuid(uuid string) error {
+	if matched := _cipher_api_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// ExtractRequestMultiError is an error wrapping multiple validation errors
+// returned by ExtractRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ExtractRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ExtractRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ExtractRequestMultiError) AllErrors() []error { return m }
+
+// ExtractRequestValidationError is the validation error returned by
+// ExtractRequest.Validate if the designated constraints aren't met.
+type ExtractRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ExtractRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ExtractRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ExtractRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ExtractRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ExtractRequestValidationError) ErrorName() string { return "ExtractRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ExtractRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sExtractRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ExtractRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ExtractRequestValidationError{}
+
+var _ExtractRequest_Method_NotInLookup = map[Method]struct{}{
+	0: {},
+}
+
+// Validate checks the field values on ExtractResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ExtractResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ExtractResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ExtractResponseMultiError, or nil if none found.
+func (m *ExtractResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ExtractResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ExtractResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ExtractResponseMultiError is an error wrapping multiple validation errors
+// returned by ExtractResponse.ValidateAll() if the designated constraints
+// aren't met.
+type ExtractResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ExtractResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ExtractResponseMultiError) AllErrors() []error { return m }
+
+// ExtractResponseValidationError is the validation error returned by
+// ExtractResponse.Validate if the designated constraints aren't met.
+type ExtractResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ExtractResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ExtractResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ExtractResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ExtractResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ExtractResponseValidationError) ErrorName() string { return "ExtractResponseValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ExtractResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sExtractResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ExtractResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ExtractResponseValidationError{}

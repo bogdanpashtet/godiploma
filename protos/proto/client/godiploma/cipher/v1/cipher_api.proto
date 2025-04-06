@@ -10,6 +10,8 @@ import "validate/validate.proto";
 service CipherService {
   // CreateStegoImage creates a stego image.
   rpc CreateStegoImage(CreateStegoImageRequest) returns (CreateStegoImageResponse);
+  // Extract extracts plaintext from a stego image.
+  rpc Extract(ExtractRequest) returns (ExtractResponse);
 }
 
 message CreateStegoImageRequest {
@@ -21,4 +23,14 @@ message CreateStegoImageRequest {
 
 message CreateStegoImageResponse {
   repeated File files = 1;
+}
+
+message ExtractRequest {
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  Method method = 2 [(validate.rules).enum = {defined_only: true,not_in: [0]}];
+  repeated File files = 4 [(validate.rules).repeated.min_items = 1];
+}
+
+message ExtractResponse {
+  repeated string plaintext = 1;
 }

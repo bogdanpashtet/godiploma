@@ -9,4 +9,5 @@ import (
 
 type Service interface {
 	CreateStegoImage(ctx context.Context, req cipherd.CreateStegoImageRequest) ([]filed.File, error)
+	Extract(ctx context.Context, req cipherd.ExtractRequest) ([]string, error)
 }

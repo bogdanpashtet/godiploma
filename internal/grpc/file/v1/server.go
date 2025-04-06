@@ -55,3 +55,14 @@ func (s *Server) CreateStegoImage(ctx context.Context, req *cipherv1.CreateStego
 		}),
 	}, nil
 }
+
+func (s *Server) Extract(ctx context.Context, req *cipherv1.ExtractRequest) (*cipherv1.ExtractResponse, error) {
+	s.l = s.l.With(zap.String("request_id", req.GetRequestId()))
+
+	res, err := s.svc.Extract(ctx, convertExtractToDomain(req))
+	if err != nil {
+		return nil, server.ErrorFromDomain(err)
+	}
+
+	return &cipherv1.ExtractResponse{Plaintext: res}, nil
+}

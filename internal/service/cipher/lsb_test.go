@@ -73,7 +73,7 @@ pixelLoopExtract:
 	return extractedData, nil
 }
 
-func TestCipherLSBTableDriven(t *testing.T) {
+func Test_cipherLSB(t *testing.T) {
 	validPNG100x50Bytes := createTestPNG(t, 100, 50)
 	validPNGSmallBytes := createTestPNG(t, 5, 5)
 	corruptedPNGBytes := validPNG100x50Bytes[:len(validPNG100x50Bytes)/2]
@@ -218,6 +218,153 @@ func TestCipherLSBTableDriven(t *testing.T) {
 				} else {
 					require.NotEmpty(t, outputFile.File, "Output file should not be empty on success")
 				}
+			}
+		})
+	}
+}
+
+func Test_extractLSB(t *testing.T) {
+	validPNG100x50Bytes := createTestPNG(t, 100, 50)
+	corruptedPNGBytes := validPNG100x50Bytes[:len(validPNG100x50Bytes)/2]
+
+	type extractLSBTestCase struct {
+		name               string
+		ctx                context.Context
+		stegoImageProvider func(t *testing.T) []byte
+		wantErr            bool
+		wantErrMsgContains string
+		wantPlaintext      string
+	}
+
+	testCases := []extractLSBTestCase{
+		{
+			name: "SuccessCaseValidData",
+			ctx:  t.Context(),
+			stegoImageProvider: func(t *testing.T) []byte {
+				t.Helper()
+				pt := "Valid hidden text"
+				inputFile := filed.File{Metadata: filed.Metadata{Type: filed.TypePNG}, File: createTestPNG(t, 150, 100)}
+				outputFile, err := cipherLSB(t.Context(), pt, inputFile)
+				require.NoError(t, err, "Setup failed: cipherLSB errored")
+				return outputFile.File
+			},
+			wantErr:       false,
+			wantPlaintext: "Valid hidden text",
+		},
+		{
+			name: "SuccessCaseEmptyPlaintext",
+			ctx:  t.Context(),
+			stegoImageProvider: func(t *testing.T) []byte {
+				t.Helper()
+				pt := ""
+				inputFile := filed.File{Metadata: filed.Metadata{Type: filed.TypePNG}, File: createTestPNG(t, 30, 30)}
+				outputFile, err := cipherLSB(t.Context(), pt, inputFile)
+				require.NoError(t, err, "Setup failed: cipherLSB errored for empty plaintext")
+				return outputFile.File
+			},
+			wantErr:       false,
+			wantPlaintext: "E",
+		},
+		{
+			name: "ErrorCaseCorruptedImageData",
+			ctx:  t.Context(),
+			stegoImageProvider: func(t *testing.T) []byte {
+				t.Helper()
+				return corruptedPNGBytes
+			},
+			wantErr:            true,
+			wantErrMsgContains: "cannot decode image",
+		},
+		{
+			name: "ErrorCaseDataTruncated",
+			ctx:  t.Context(),
+			stegoImageProvider: func(t *testing.T) []byte {
+				t.Helper()
+				pt := "Short msg"
+				inputFile := filed.File{Metadata: filed.Metadata{Type: filed.TypePNG}, File: createTestPNG(t, 10, 6)}
+				outputFile, err := cipherLSB(t.Context(), pt, inputFile)
+				require.NoError(t, err, "Setup failed: cipherLSB errored")
+				return outputFile.File[:60]
+			},
+			wantErr:            true,
+			wantErrMsgContains: "fail to extract:",
+		},
+		{
+			name: "ErrorCaseImageTooSmallForDeclaredLength",
+			ctx:  t.Context(),
+			stegoImageProvider: func(t *testing.T) []byte {
+				t.Helper()
+				img := image.NewRGBA(image.Rect(0, 0, 8, 8))
+				lenBytes := make([]byte, 8)
+				binary.BigEndian.PutUint64(lenBytes, uint64(20))
+				dataIndex := 0
+				bitIndex := 0
+				pixelCount := 0
+				for y := 0; y < 8 && pixelCount < 22; y++ {
+					for x := 0; x < 8 && pixelCount < 22; x++ {
+						c := color.RGBA{R: byte(x * 10), G: byte(y * 10), B: 100, A: 255}
+						channels := []*uint8{&c.R, &c.G, &c.B}
+						for i := 0; i < 3 && pixelCount*3+i < 64; i++ {
+							secretBit := (lenBytes[dataIndex] >> (7 - bitIndex)) & 1
+							*channels[i] = (*channels[i] & 0xFE) | secretBit
+							bitIndex++
+							if bitIndex > 7 {
+								bitIndex = 0
+								dataIndex++
+							}
+						}
+						img.SetRGBA(x, y, c)
+						pixelCount++
+					}
+				}
+				var buf bytes.Buffer
+				err := png.Encode(&buf, img)
+				require.NoError(t, err)
+				return buf.Bytes()
+			},
+			wantErr:            true,
+			wantErrMsgContains: "image capacity",
+		},
+		{
+			name: "ErrorCaseContextCancelled",
+			ctx: func() context.Context {
+				c, cancel := context.WithCancel(t.Context())
+				cancel()
+				return c
+			}(),
+			stegoImageProvider: func(t *testing.T) []byte {
+				t.Helper()
+				pt := "Some data for cancellation test..."
+				inputFile := filed.File{Metadata: filed.Metadata{Type: filed.TypePNG}, File: createTestPNG(t, 250, 250)}
+				outputFile, err := cipherLSB(t.Context(), pt, inputFile)
+				require.NoError(t, err, "Setup failed: cipherLSB errored")
+				return outputFile.File
+			},
+			wantErr:            true,
+			wantErrMsgContains: context.Canceled.Error(),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			stegoBytes := tc.stegoImageProvider(t)
+			actualPlaintext, err := extractLSB(tc.ctx, stegoBytes)
+
+			if tc.wantErr {
+				require.Error(t, err, "Expected an error but got none")
+				if tc.wantErrMsgContains != "" {
+					assert.Contains(t, err.Error(), tc.wantErrMsgContains, "Error message mismatch")
+				}
+				if tc.name == "ErrorCaseContextCancelled" {
+					assert.True(t, errors.Is(err, context.Canceled))
+				}
+				if errors.Is(tc.ctx.Err(), context.DeadlineExceeded) {
+					assert.True(t, errors.Is(err, context.DeadlineExceeded))
+				}
+				assert.Equal(t, "", actualPlaintext, "Plaintext should be empty on error")
+			} else {
+				require.NoError(t, err, "Expected no error but got one: %v", err)
+				assert.Equal(t, tc.wantPlaintext, actualPlaintext, "Extracted plaintext mismatch")
 			}
 		})
 	}
