@@ -77,7 +77,7 @@ func (Type) EnumDescriptor() ([]byte, []int) {
 type File struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	DocumentType Type                   `protobuf:"varint,1,opt,name=document_type,json=documentType,proto3,enum=client.godiploma.file.v1.Type" json:"document_type,omitempty"`
-	// 16 МБ (16 * 1024 * 1024 = 16777216 байт).
+	// 16 Mb (16 * 1024 * 1024 = 16777216 bytes).
 	DocumentData  []byte `protobuf:"bytes,2,opt,name=document_data,json=documentData,proto3" json:"document_data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -131,9 +131,10 @@ var File_client_godiploma_file_v1_file_proto protoreflect.FileDescriptor
 
 const file_client_godiploma_file_v1_file_proto_rawDesc = "" +
 	"\n" +
-	"#client/godiploma/file/v1/file.proto\x12\x18client.godiploma.file.v1\x1a\x17validate/validate.proto\"\x88\x01\n" +
-	"\x04File\x12M\n" +
-	"\rdocument_type\x18\x01 \x01(\x0e2\x1e.client.godiploma.file.v1.TypeB\b\xfaB\x05\x82\x01\x02\x10\x01R\fdocumentType\x121\n" +
+	"#client/godiploma/file/v1/file.proto\x12\x18client.godiploma.file.v1\x1a\x17validate/validate.proto\"\x8a\x01\n" +
+	"\x04File\x12O\n" +
+	"\rdocument_type\x18\x01 \x01(\x0e2\x1e.client.godiploma.file.v1.TypeB\n" +
+	"\xfaB\a\x82\x01\x04\x10\x01 \x00R\fdocumentType\x121\n" +
 	"\rdocument_data\x18\x02 \x01(\fB\f\xfaB\tz\a\x10\x01\x18\x80\x80\x80\bR\fdocumentData*a\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x11\n" +

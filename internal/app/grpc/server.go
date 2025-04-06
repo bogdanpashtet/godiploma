@@ -6,19 +6,17 @@ import (
 	"net"
 
 	"github.com/bogdanpashtet/godiploma/internal/config"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpcmw "github.com/grpc-ecosystem/go-grpc-middleware"
+	loggingmw "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	tagsmw "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	authmw "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
+	recoverymw "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	validatormw "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
+	prometheusmw "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
-
-const HealthCheckName = "grpc-server"
 
 type Registrar interface {
 	Register(srv *grpc.Server)
@@ -39,23 +37,22 @@ type App struct {
 }
 
 func New(params Params) *App {
-	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-		recovery.UnaryServerInterceptor(),
-		grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
-		grpc_prometheus.UnaryServerInterceptor,
-		grpc_zap.UnaryServerInterceptor(params.Logger),
-		auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) { return ctx, nil }), // TODO: add auth
-		validator.UnaryServerInterceptor(),
+	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(grpcmw.ChainUnaryServer(
+		recoverymw.UnaryServerInterceptor(),
+		tagsmw.UnaryServerInterceptor(tagsmw.WithFieldExtractor(tagsmw.CodeGenRequestFieldExtractor)),
+		prometheusmw.UnaryServerInterceptor,
+		loggingmw.UnaryServerInterceptor(params.Logger),
+		authmw.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) { return ctx, nil }), // TODO: add auth
+		validatormw.UnaryServerInterceptor(),
 	)))
 
-	// init servers
 	for _, reg := range params.Registrars {
 		reg.Register(gRPCServer)
 	}
 
-	grpc_prometheus.EnableClientHandlingTimeHistogram()
-	grpc_prometheus.EnableHandlingTimeHistogram()
-	grpc_prometheus.Register(gRPCServer)
+	prometheusmw.EnableClientHandlingTimeHistogram()
+	prometheusmw.EnableHandlingTimeHistogram()
+	prometheusmw.Register(gRPCServer)
 
 	app := &App{
 		logger:     params.Logger,
@@ -82,7 +79,7 @@ func (a *App) onStart(_ context.Context) error {
 	}
 
 	go func() {
-		if err := a.gRPCServer.Serve(listener); err != nil {
+		if err = a.gRPCServer.Serve(listener); err != nil {
 			a.logger.Sugar().Errorw("grpc start error", zap.Error(err))
 		}
 

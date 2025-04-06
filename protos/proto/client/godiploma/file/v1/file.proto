@@ -13,9 +13,12 @@ enum Type {
 
 message File {
   Type document_type = 1 [
-    (validate.rules).enum.defined_only = true
+    (validate.rules).enum = {
+      defined_only: true,
+      not_in: [0]
+    }
   ];
 
-  // 16 МБ (16 * 1024 * 1024 = 16777216 байт).
+  // 16 Mb (16 * 1024 * 1024 = 16777216 bytes).
   bytes document_data = 2 [(validate.rules).bytes = {min_len: 1, max_len: 16777216}];
 }

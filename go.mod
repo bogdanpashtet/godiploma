@@ -27,6 +27,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/hellofresh/health-go/v5 v5.5.3
 	github.com/prometheus/client_golang v1.21.1
+	github.com/samber/lo v1.49.1
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/fx v1.23.0
 	go.uber.org/zap v1.27.0

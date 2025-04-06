@@ -56,6 +56,17 @@ func (m *File) validate(all bool) error {
 
 	var errors []error
 
+	if _, ok := _File_DocumentType_NotInLookup[m.GetDocumentType()]; ok {
+		err := FileValidationError{
+			field:  "DocumentType",
+			reason: "value must not be in list [TYPE_UNSPECIFIED]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if _, ok := Type_name[int32(m.GetDocumentType())]; !ok {
 		err := FileValidationError{
 			field:  "DocumentType",
@@ -154,3 +165,7 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = FileValidationError{}
+
+var _File_DocumentType_NotInLookup = map[Type]struct{}{
+	0: {},
+}

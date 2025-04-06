@@ -36,16 +36,6 @@ tasks:
     desc: "prettify code"
     deps: [ fmt, lint ]
 
-  build-helm-dependencies:
-    desc: "build helm dependencies (app-template)"
-    cmds:
-      - helm dependency build ./deployments/helm/{{ .SERVICE_NAME }}
-
-  update-helm-dependencies:
-    desc: "build update dependencies (app-template)"
-    cmds:
-      - helm dependency update ./deployments/helm/{{ .SERVICE_NAME }}
-
   test:
     desc: "run unit tests with coverage"
     cmds:

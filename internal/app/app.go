@@ -10,6 +10,7 @@ import (
 	"github.com/bogdanpashtet/godiploma/internal/config"
 	filev1 "github.com/bogdanpashtet/godiploma/internal/grpc/file/v1"
 	"github.com/bogdanpashtet/godiploma/internal/log"
+	filesvc "github.com/bogdanpashtet/godiploma/internal/service/file"
 	healthgo "github.com/hellofresh/health-go/v5"
 
 	"go.uber.org/automaxprocs/maxprocs"
@@ -43,6 +44,10 @@ func DependenciesGraph() fx.Option {
 			context.Background,
 			config.New,
 			logger,
+			fx.Annotate(
+				filesvc.New,
+				fx.As(new(filev1.Service)),
+			),
 			grpc.AsRegistrar(filev1.NewServer),
 			grpc.New,
 		),
@@ -55,7 +60,7 @@ func logger(lc fx.Lifecycle) (*zap.Logger, error) {
 		return nil, err
 	}
 
-	if _, err := maxprocs.Set(maxprocs.Logger(lg.Sugar().Infof)); err != nil {
+	if _, err = maxprocs.Set(maxprocs.Logger(lg.Sugar().Infof)); err != nil {
 		lg.Warn("Set maxprocs", zap.Error(err))
 	}
 
@@ -87,15 +92,10 @@ func health(lc fx.Lifecycle, l *zap.Logger, cfg *config.AppConfig) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			l.Sugar().Infow("Starting health check server", zap.String("address", srv.Addr))
-			go func() {
-				if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					l.Sugar().Errorw("Health server error", zap.Error(err))
-				}
-			}()
-			return nil
+			return start(ctx, srv)
 		},
 		OnStop: func(ctx context.Context) error {
-			l.Sugar().Infow("Shutting down health check server")
+			l.Sugar().Infow("Shutting down health check server", zap.String("address", srv.Addr))
 			return srv.Shutdown(ctx)
 		},
 	})
@@ -104,17 +104,12 @@ func health(lc fx.Lifecycle, l *zap.Logger, cfg *config.AppConfig) {
 func metrics(lc fx.Lifecycle, l *zap.Logger, cfg *config.AppConfig) {
 	srv := newMetricsServer(cfg.Metrics)
 	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
+		OnStart: func(ctx context.Context) error {
 			l.Sugar().Infow("Starting metrics server", zap.String("address", srv.Addr))
-			go func() {
-				if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					l.Sugar().Errorw("Metrics server error", zap.Error(err))
-				}
-			}()
-			return nil
+			return start(ctx, srv)
 		},
 		OnStop: func(ctx context.Context) error {
-			l.Sugar().Infow("Shutting down metrics check server")
+			l.Sugar().Infow("Shutting down metrics check server", zap.String("address", srv.Addr))
 			return srv.Shutdown(ctx)
 		},
 	})
