@@ -8,6 +8,7 @@ ARG BUF_VERSION=v1.17.0
 ARG PROTOC_GATEWAY_VERSION=v2.15.2
 ARG SWAGGER_VERSION=v0.30.4
 ARG PROTOC_GEN_DOC_VERSION=v1.5.1
+ARG PROTOC_GEN_VALIDATE_VERSION=v1.2.1
 
 ENV GOPATH=/go
 
@@ -22,6 +23,7 @@ RUN go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@${BUF_VERSION}
 RUN go install github.com/bufbuild/buf/cmd/buf@${BUF_VERSION}
 RUN go install github.com/go-swagger/go-swagger/cmd/swagger@${SWAGGER_VERSION}
 RUN go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@${PROTOC_GEN_DOC_VERSION}
+RUN go install github.com/envoyproxy/protoc-gen-validate@${PROTOC_GEN_VALIDATE_VERSION}
 
 # Setup for python
 ARG PYTHON_MYPY_PROTOBUF_VERSION=3.6.0

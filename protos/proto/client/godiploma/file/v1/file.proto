@@ -14,7 +14,7 @@ enum DocumentType {
 message Document {
   DocumentType document_type = 1 [
     (validate.rules).enum.defined_only = true
-//    (validate.rules).enum.not_in = {0}
+    (validate.rules).enum.not_in = {0}
   ];
 
   // 16 МБ (16 * 1024 * 1024 = 16777216 байт).

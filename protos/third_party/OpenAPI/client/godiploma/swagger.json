@@ -78,6 +78,7 @@
       "type": "object",
       "properties": {
         "documentData": {
+          "description": "16 МБ (16 * 1024 * 1024 = 16777216 байт).",
           "type": "string",
           "format": "byte"
         },
@@ -91,7 +92,9 @@
       "default": "DOCUMENT_TYPE_UNSPECIFIED",
       "enum": [
         "DOCUMENT_TYPE_UNSPECIFIED",
-        "DOCUMENT_TYPE_PASSPORT"
+        "DOCUMENT_TYPE_PASSPORT",
+        "DOCUMENT_TYPE_DRIVER_LICENSE",
+        "DOCUMENT_TYPE_BANK_STATEMENT"
       ]
     },
     "v1UploadDocumentsRequest": {
@@ -104,7 +107,7 @@
             "$ref": "#/definitions/v1Document"
           }
         },
-        "meetingId": {
+        "requestId": {
           "type": "string"
         }
       }

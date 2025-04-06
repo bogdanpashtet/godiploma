@@ -6,12 +6,13 @@ import (
 	"net"
 
 	"github.com/bogdanpashtet/godiploma/internal/config"
-	"github.com/bogdanpashtet/godiploma/internal/log"
-
-	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpcctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -25,22 +26,26 @@ type Registrar interface {
 type Params struct {
 	fx.In
 
-	Logger     log.Logger
+	Logger     *zap.Logger
 	Config     *config.AppConfig
 	Registrars []Registrar `group:"grpcRegistrars"`
 }
 
 type App struct {
-	logger     log.Logger
+	logger     *zap.Logger
 	gRPCServer *grpc.Server
 	cfg        config.GRPCBase
 	isReady    bool
 }
 
 func New(params Params) *App {
-	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
-		grpcprometheus.UnaryServerInterceptor,
-		grpcctxtags.UnaryServerInterceptor(grpcctxtags.WithFieldExtractor(grpcctxtags.CodeGenRequestFieldExtractor)),
+	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+		recovery.UnaryServerInterceptor(),
+		grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+		grpc_prometheus.UnaryServerInterceptor,
+		grpc_zap.UnaryServerInterceptor(params.Logger),
+		auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) { return ctx, nil }), // TODO: add auth
+		validator.UnaryServerInterceptor(),
 	)))
 
 	// init servers
@@ -48,9 +53,9 @@ func New(params Params) *App {
 		reg.Register(gRPCServer)
 	}
 
-	grpcprometheus.EnableClientHandlingTimeHistogram()
-	grpcprometheus.EnableHandlingTimeHistogram()
-	grpcprometheus.Register(gRPCServer)
+	grpc_prometheus.EnableClientHandlingTimeHistogram()
+	grpc_prometheus.EnableHandlingTimeHistogram()
+	grpc_prometheus.Register(gRPCServer)
 
 	app := &App{
 		logger:     params.Logger,
@@ -69,7 +74,7 @@ func Register(lc fx.Lifecycle, app *App) {
 }
 
 func (a *App) onStart(_ context.Context) error {
-	a.logger.Info("starting gRPC server", zap.Int("port", a.cfg.Port))
+	a.logger.Sugar().Infow("starting gRPC server", zap.Int("port", a.cfg.Port))
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.Port))
 	if err != nil {
@@ -78,7 +83,7 @@ func (a *App) onStart(_ context.Context) error {
 
 	go func() {
 		if err := a.gRPCServer.Serve(listener); err != nil {
-			a.logger.Error("grpc start error", zap.Error(err))
+			a.logger.Sugar().Errorw("grpc start error", zap.Error(err))
 		}
 
 		a.isReady = false
@@ -90,7 +95,7 @@ func (a *App) onStart(_ context.Context) error {
 }
 
 func (a *App) onStop(_ context.Context) error {
-	a.logger.Info("stopping gRPC server", zap.Int("port", a.cfg.Port))
+	a.logger.Sugar().Infow("stopping gRPC server", zap.Int("port", a.cfg.Port))
 
 	a.gRPCServer.GracefulStop()
 

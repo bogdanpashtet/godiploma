@@ -23,7 +23,7 @@ const appTimeout = 30 * time.Second
 func NewApp() *fx.App {
 	app := fx.New(
 		DependenciesGraph(),
-		fx.WithLogger(func(logger log.Logger) fxevent.Logger {
+		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 			return &log.FxLogger{Logger: logger}
 		}),
 		fx.StopTimeout(appTimeout),
@@ -49,7 +49,7 @@ func DependenciesGraph() fx.Option {
 	)
 }
 
-func logger(lc fx.Lifecycle) (log.Logger, error) {
+func logger(lc fx.Lifecycle) (*zap.Logger, error) {
 	lg, err := zap.NewProduction()
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func logger(lc fx.Lifecycle) (log.Logger, error) {
 	return lg, nil
 }
 
-func health(lc fx.Lifecycle, l log.Logger, cfg *config.AppConfig) {
+func health(lc fx.Lifecycle, l *zap.Logger, cfg *config.AppConfig) {
 	h, _ := healthgo.New(healthgo.WithComponent(healthgo.Component{
 		Name:    cfg.AppName,
 		Version: cfg.Version,
@@ -86,35 +86,35 @@ func health(lc fx.Lifecycle, l log.Logger, cfg *config.AppConfig) {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			l.Info("Starting health check server", zap.String("address", srv.Addr))
+			l.Sugar().Infow("Starting health check server", zap.String("address", srv.Addr))
 			go func() {
 				if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					l.Error("Health server error", zap.Error(err))
+					l.Sugar().Errorw("Health server error", zap.Error(err))
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			l.Info("Shutting down health check server")
+			l.Sugar().Infow("Shutting down health check server")
 			return srv.Shutdown(ctx)
 		},
 	})
 }
 
-func metrics(lc fx.Lifecycle, l log.Logger, cfg *config.AppConfig) {
+func metrics(lc fx.Lifecycle, l *zap.Logger, cfg *config.AppConfig) {
 	srv := newMetricsServer(cfg.Metrics)
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
-			l.Info("Starting metrics server", zap.String("address", srv.Addr))
+			l.Sugar().Infow("Starting metrics server", zap.String("address", srv.Addr))
 			go func() {
 				if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					l.Error("Metrics server error", zap.Error(err))
+					l.Sugar().Errorw("Metrics server error", zap.Error(err))
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			l.Info("Shutting down metrics check server")
+			l.Sugar().Infow("Shutting down metrics check server")
 			return srv.Shutdown(ctx)
 		},
 	})
