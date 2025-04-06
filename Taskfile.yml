@@ -70,7 +70,7 @@ tasks:
     cmds:
       - go get -u ./... && go mod tidy
 
-# GENERATE PROTO
+# PROTO
   gen-proto:
     cmds:
       - task: lint-proto

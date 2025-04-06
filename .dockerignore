@@ -1,28 +1,29 @@
+# This file is used to specify files and directories that should be ignored by Docker when building images.
+
+# Folders
 .idea
 .git
-build
 config
 deployments
-**/mock/
-scripts
-test
-
-protos/build
+kreya
 protos/proto
 protos/scripts
+scripts
+test
+**/mock/
+**/mocks/
+
+# Files
+**/*_test.go
+**/*_mock.go
 
 .bumpversion.cfg
+.env
 .gitignore
 .golangci.yml
 .mockery.yaml
 .test.example.env
-.env
+buf.gen.yaml
+buf.work.yaml
 README.md
 Taskfile.yml
-
-**/*_test.go
-**/*_mock.go
-
-.cache
-.task
-kreya
