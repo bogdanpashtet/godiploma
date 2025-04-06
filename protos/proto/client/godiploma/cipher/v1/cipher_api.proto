@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package client.godiploma.cipher.v1;
+
+import "client/godiploma/cipher/v1/cipher.proto";
+import "client/godiploma/cipher/v1/file.proto";
+import "validate/validate.proto";
+
+// CipherService steganography cipher service.
+service CipherService {
+  // CreateStegoImage creates a stego image.
+  rpc CreateStegoImage(CreateStegoImageRequest) returns (CreateStegoImageResponse);
+}
+
+message CreateStegoImageRequest {
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  Method method = 2 [(validate.rules).enum = {defined_only: true,not_in: [0]}];
+  string plaintext = 3 [(validate.rules).string.min_len = 1];
+  repeated File files = 4 [(validate.rules).repeated.min_items = 1];
+}
+
+message CreateStegoImageResponse {
+  repeated File files = 1;
+}

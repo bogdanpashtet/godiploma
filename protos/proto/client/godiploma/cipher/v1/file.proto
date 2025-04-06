@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package client.godiploma.cipher.v1;
+
+import "validate/validate.proto";
+
+enum Type {
+  TYPE_UNSPECIFIED = 0;
+  TYPE_BMP = 1;
+  TYPE_PNG = 2;
+}
+
+message Metadata {
+  Type type = 1 [(validate.rules).enum = {defined_only: true,not_in: [0]}];
+}
+
+message File {
+  Metadata metadata = 1 [(validate.rules).message.required = true];
+  // 16 Mb (16 * 1024 * 1024 = 16777216 bytes).
+  bytes document_data = 2 [(validate.rules).bytes = {min_len: 1, max_len: 16777216}];
+}

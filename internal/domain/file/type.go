@@ -1,37 +1,32 @@
 package file
 
-import filev1 "github.com/bogdanpashtet/godiploma/protos/gen/go/client/godiploma/file/v1"
+import cipherv1 "github.com/bogdanpashtet/godiploma/protos/gen/go/client/godiploma/cipher/v1"
 
 type Type string
 
 const (
-	TypeUnspecified   Type = ""
-	TypePassport      Type = "passport"
-	TypeDriverLicense Type = "driver_license"
-	TypeBankStatement Type = "bank_statement"
+	TypeUnspecified Type = ""
+	TypeBMP         Type = "bmp"
+	TypePNG         Type = "png"
 )
 
-func (t Type) FromDomain() filev1.Type {
+func (t Type) FromDomain() cipherv1.Type {
 	switch t {
-	case TypePassport:
-		return filev1.Type_TYPE_PASSPORT
-	case TypeDriverLicense:
-		return filev1.Type_TYPE_DRIVER_LICENSE
-	case TypeBankStatement:
-		return filev1.Type_TYPE_BANK_STATEMENT
+	case TypeBMP:
+		return cipherv1.Type_TYPE_BMP
+	case TypePNG:
+		return cipherv1.Type_TYPE_PNG
 	default:
-		return filev1.Type_TYPE_UNSPECIFIED
+		return cipherv1.Type_TYPE_UNSPECIFIED
 	}
 }
 
-func ConvertTypeToDomain(t filev1.Type) Type {
+func ConvertTypeToDomain(t cipherv1.Type) Type {
 	switch t {
-	case filev1.Type_TYPE_PASSPORT:
-		return TypePassport
-	case filev1.Type_TYPE_DRIVER_LICENSE:
-		return TypeDriverLicense
-	case filev1.Type_TYPE_BANK_STATEMENT:
-		return TypeBankStatement
+	case cipherv1.Type_TYPE_BMP:
+		return TypeBMP
+	case cipherv1.Type_TYPE_PNG:
+		return TypePNG
 	default:
 		return TypeUnspecified
 	}

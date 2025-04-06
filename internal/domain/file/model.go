@@ -1,6 +1,10 @@
 package file
 
-type File struct {
+type Metadata struct {
 	Type Type
-	File []byte
+}
+
+type File struct {
+	Metadata Metadata
+	File     []byte
 }

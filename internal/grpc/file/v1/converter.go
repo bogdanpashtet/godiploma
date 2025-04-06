@@ -1,16 +1,23 @@
 package v1
 
 import (
+	cipherd "github.com/bogdanpashtet/godiploma/internal/domain/cipher"
 	filed "github.com/bogdanpashtet/godiploma/internal/domain/file"
-	filev1 "github.com/bogdanpashtet/godiploma/protos/gen/go/client/godiploma/file/v1"
+	cipherv1 "github.com/bogdanpashtet/godiploma/protos/gen/go/client/godiploma/cipher/v1"
 	"github.com/samber/lo"
 )
 
-func convertUploadRequestToDomain(req *filev1.UploadFilesRequest) filed.UploadFilesRequest {
-	return filed.UploadFilesRequest{Files: lo.Map(req.Documents, func(file *filev1.File, _ int) filed.File {
-		return filed.File{
-			Type: filed.ConvertTypeToDomain(file.DocumentType),
-			File: file.DocumentData,
-		}
-	})}
+func convertCreateStegoImageToDomain(req *cipherv1.CreateStegoImageRequest) cipherd.CreateStegoImageRequest {
+	return cipherd.CreateStegoImageRequest{
+		Method:    cipherd.ConvertMethodToDomain(req.Method),
+		Plaintext: req.Plaintext,
+		Files: lo.Map(req.Files, func(file *cipherv1.File, _ int) filed.File {
+			return filed.File{
+				Metadata: filed.Metadata{
+					Type: filed.ConvertTypeToDomain(file.Metadata.Type),
+				},
+				File: file.DocumentData,
+			}
+		}),
+	}
 }

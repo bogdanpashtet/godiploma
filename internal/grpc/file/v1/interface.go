@@ -3,9 +3,10 @@ package v1
 import (
 	"context"
 
+	cipherd "github.com/bogdanpashtet/godiploma/internal/domain/cipher"
 	filed "github.com/bogdanpashtet/godiploma/internal/domain/file"
 )
 
 type Service interface {
-	UploadFiles(ctx context.Context, req filed.UploadFilesRequest) error
+	CreateStegoImage(ctx context.Context, req cipherd.CreateStegoImageRequest) ([]filed.File, error)
 }

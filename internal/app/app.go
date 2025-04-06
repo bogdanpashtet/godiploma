@@ -10,7 +10,7 @@ import (
 	"github.com/bogdanpashtet/godiploma/internal/config"
 	filev1 "github.com/bogdanpashtet/godiploma/internal/grpc/file/v1"
 	"github.com/bogdanpashtet/godiploma/internal/log"
-	filesvc "github.com/bogdanpashtet/godiploma/internal/service/file"
+	ciphersvc "github.com/bogdanpashtet/godiploma/internal/service/cipher"
 	healthgo "github.com/hellofresh/health-go/v5"
 
 	"go.uber.org/automaxprocs/maxprocs"
@@ -45,7 +45,7 @@ func DependenciesGraph() fx.Option {
 			config.New,
 			logger,
 			fx.Annotate(
-				filesvc.New,
+				ciphersvc.New,
 				fx.As(new(filev1.Service)),
 			),
 			grpc.AsRegistrar(filev1.NewServer),

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package client.godiploma.cipher.v1;
+
+import "validate/validate.proto";
+
+enum Method {
+  METHOD_UNSPECIFIED = 0;
+  METHOD_LSB = 1;
+}

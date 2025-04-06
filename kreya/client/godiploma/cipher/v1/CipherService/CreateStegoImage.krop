@@ -1,11 +1,11 @@
 {
   "details": {
     "endpoint": "http://localhost:13013",
-    "methodFqn": "client.godiploma.file.v1.FileService.UploadFiles"
+    "methodFqn": "client.godiploma.cipher.v1.CipherService.CreateStegoImage"
   },
   "requests": [
     {
-      "location": "UploadFiles-request.json"
+      "location": "CreateStegoImage-request.json"
     }
   ],
   "operationType": "unary",

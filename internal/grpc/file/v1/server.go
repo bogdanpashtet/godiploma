@@ -3,12 +3,13 @@ package v1
 import (
 	"context"
 
-	filev1 "github.com/bogdanpashtet/godiploma/protos/gen/go/client/godiploma/file/v1"
+	filed "github.com/bogdanpashtet/godiploma/internal/domain/file"
+	server "github.com/bogdanpashtet/godiploma/internal/grpc"
+	cipherv1 "github.com/bogdanpashtet/godiploma/protos/gen/go/client/godiploma/cipher/v1"
+	"github.com/samber/lo"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type Params struct {
@@ -21,7 +22,7 @@ type Server struct {
 	l   *zap.Logger
 	svc Service
 
-	filev1.UnimplementedFileServiceServer
+	cipherv1.UnimplementedCipherServiceServer
 }
 
 func NewServer(params Params) *Server {
@@ -32,15 +33,25 @@ func NewServer(params Params) *Server {
 }
 
 func (s *Server) Register(gRPCServer *grpc.Server) {
-	filev1.RegisterFileServiceServer(gRPCServer, s)
+	cipherv1.RegisterCipherServiceServer(gRPCServer, s)
 }
 
-func (s *Server) UploadFiles(ctx context.Context, req *filev1.UploadFilesRequest) (*filev1.UploadFilesResponse, error) {
+func (s *Server) CreateStegoImage(ctx context.Context, req *cipherv1.CreateStegoImageRequest) (*cipherv1.CreateStegoImageResponse, error) {
 	s.l = s.l.With(zap.String("request_id", req.GetRequestId()))
 
-	if err := s.svc.UploadFiles(ctx, convertUploadRequestToDomain(req)); err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to upload documents: %s", err.Error())
+	res, err := s.svc.CreateStegoImage(ctx, convertCreateStegoImageToDomain(req))
+	if err != nil {
+		return nil, server.ErrorFromDomain(err)
 	}
 
-	return &filev1.UploadFilesResponse{}, nil
+	return &cipherv1.CreateStegoImageResponse{
+		Files: lo.Map(res, func(file filed.File, _ int) *cipherv1.File {
+			return &cipherv1.File{
+				Metadata: &cipherv1.Metadata{
+					Type: file.Metadata.Type.FromDomain(),
+				},
+				DocumentData: file.File,
+			}
+		}),
+	}, nil
 }

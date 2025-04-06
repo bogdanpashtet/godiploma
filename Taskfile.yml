@@ -84,9 +84,6 @@ tasks:
       - go tool buf lint
       - go tool buf breaking --against ".git#ref=$(git merge-base main HEAD)" || true
   generate:
-    aliases:
-      - proto_gen
-      - gen
     desc: "Generate code from proto files"
     cmds:
       - ./protos/scripts/buf/cleanup.sh
@@ -95,6 +92,8 @@ tasks:
 
 # RELEASE
   bump:patch:
+    aliases:
+      - bump
     desc: 'Up patch version (0.0.X)'
     cmds:
       - bump-my-version bump patch
@@ -116,6 +115,8 @@ tasks:
       - git push {{.REMOTE}} --tags
 
   release:patch:
+    aliases:
+      - release
     desc: 'Up patch version and push into {{.REMOTE}}'
     deps: [bump:patch]
     cmds:
@@ -133,7 +134,46 @@ tasks:
     cmds:
       - task: bump:push
 
-  bump:show:
-    desc: 'Show current version (dry run)'
+# UTILS
+  base64:
+    desc: "Encode file to Base64 -> ./files/byte/<name>.txt"
     cmds:
-      - bump-my-version bump patch --dry-run --verbose --allow-dirty
+      - chmod +x ./scripts/file_to_base64.sh
+      - ./scripts/file_to_base64.sh {{.CLI_ARGS}}
+
+  base64-to-file:
+    desc: "Decode Base64 <in_file> to ./files/res/<name>_<timestamp>.<type> using <out_type>"
+    summary: |
+      # Minimal summary with usage
+      Usage: task base64-to-file -- <input_base64_txt_file> <output_file_type>
+      Example: task base64-to-file -- ./files/byte/image.txt png
+    cmds:
+      - chmod +x ./scripts/base64_to_file.sh
+      - ./scripts/base64_to_file.sh {{.CLI_ARGS}}
+
+  profile:
+    desc: "Collect & serve pprof profiles for a given service name"
+    summary: |
+      Runs the profiling script which:
+      1. Creates a directory named <service_name>-YYYYMM.
+      2. Collects pprof data (cpu, heap, trace, etc.) using curl from http://localhost:9201.
+      3. Serves the collected profiles using 'go tool pprof/trace' on ports 8080-8086.
+      4. Attempts to open the profile URLs in the default browser (NOTE: Script has a port mismatch error here!).
+
+      Usage:
+        task profile -- <service_name>
+
+      Example:
+        task profile -- my-api-service
+    vars:
+      SERVICE_NAME:
+        sh: |
+          if [ -z "{{index .CLI_ARGS 0}}" ]; then
+            echo "Error: Service name argument is required." >&2
+            echo "Usage: task profile -- <service_name>" >&2
+            exit 1
+          fi
+          echo "{{index .CLI_ARGS 0}}"
+    cmds:
+      - chmod +x ./scripts/collect_profiles.sh
+      - ./scripts/collect_profiles.sh {{.SERVICE_NAME}}
