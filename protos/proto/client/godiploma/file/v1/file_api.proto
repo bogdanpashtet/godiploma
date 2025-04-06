@@ -3,6 +3,7 @@ syntax = "proto3";
 package client.godiploma.file.v1;
 
 import "client/godiploma/file/v1/file.proto";
+import "validate/validate.proto";
 
 // FileService file api.
 service FileService {
@@ -11,8 +12,8 @@ service FileService {
 }
 
 message UploadDocumentsRequest {
-  string meeting_id = 1;
-  repeated client.godiploma.file.v1.Document documents = 4;
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  repeated Document documents = 2 [(validate.rules).repeated.min_items = 1];
 }
 
 message UploadDocumentsResponse {}

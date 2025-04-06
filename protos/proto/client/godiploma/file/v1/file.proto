@@ -2,12 +2,21 @@ syntax = "proto3";
 
 package client.godiploma.file.v1;
 
+import "validate/validate.proto";
+
 enum DocumentType {
   DOCUMENT_TYPE_UNSPECIFIED = 0;
   DOCUMENT_TYPE_PASSPORT = 1;
+  DOCUMENT_TYPE_DRIVER_LICENSE = 2;
+  DOCUMENT_TYPE_BANK_STATEMENT = 3;
 }
 
 message Document {
-  DocumentType document_type = 1;
-  bytes document_data = 2;
+  DocumentType document_type = 1 [
+    (validate.rules).enum.defined_only = true
+//    (validate.rules).enum.not_in = {0}
+  ];
+
+  // 16 МБ (16 * 1024 * 1024 = 16777216 байт).
+  bytes document_data = 2 [(validate.rules).bytes = {min_len: 1, max_len: 16777216}];
 }
