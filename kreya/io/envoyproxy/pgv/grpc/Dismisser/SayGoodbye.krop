@@ -1,0 +1,13 @@
+{
+  "details": {
+    "methodFqn": "io.envoyproxy.pgv.grpc.Dismisser.SayGoodbye"
+  },
+  "requests": [
+    {
+      "location": "SayGoodbye-request.json"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "grpc",
+  "importStreamId": "5498d945-1327-4ef9-8f54-04a2ce0ef4ae"
+}

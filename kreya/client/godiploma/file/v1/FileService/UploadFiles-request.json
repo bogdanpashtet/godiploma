@@ -1,0 +1,13 @@
+{
+  "requestId": "{{ faker.random.uuid }}",
+  "documents": [
+    {
+      "documentType": "TYPE_BANK_STATEMENT",
+      "documentData": "UmFuY2g="
+    },
+    {
+      "documentType": "TYPE_PASSPORT",
+      "documentData": "UmFuY2g="
+    }
+  ]
+}

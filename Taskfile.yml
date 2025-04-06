@@ -1,3 +1,4 @@
+# https://github.com/go-task/task
 version: "3"
 
 vars:
@@ -17,6 +18,7 @@ tasks:
       - task: test
       - task: isolation-tests
 
+# BUILD & CHECKS
   gen-mocks:
     desc: "Generate mocks"
     cmds:
@@ -55,7 +57,7 @@ tasks:
 
   isolation-tests:
     desc: "run isolation tests"
-    dotenv: [ ".test.env" ]
+    dotenv: [ ".env" ]
     cmds:
       - GOPATH=$GOPATH go clean --testcache
       - GOPATH=$GOPATH go test -race -v ./test/cases/...
@@ -89,3 +91,48 @@ tasks:
       - ./protos/scripts/buf/cleanup.sh
       - go tool buf generate
       - ./protos/scripts/buf/go-code-compile-check.sh
+
+# RELEASE
+  bump:patch:
+    desc: 'Up patch version (0.0.X)'
+    cmds:
+      - bump-my-version patch
+
+  bump:minor:
+    desc: 'Up minor version (0.X.0)'
+    cmds:
+      - bump-my-version minor
+
+  bump:major:
+    desc: 'Up major version (X.0.0)'
+    cmds:
+      - bump-my-version major
+
+  bump:push:
+    desc: 'Send last commits and tags to remote repository ({{.REMOTE}})'
+    cmds:
+      - git push {{.REMOTE}}
+      - git push {{.REMOTE}} --tags
+
+  release:patch:
+    desc: 'Up patch version and push into {{.REMOTE}}'
+    deps: [bump:patch]
+    cmds:
+      - task: bump:push
+
+  release:minor:
+    desc: 'Up minor version and push into {{.REMOTE}}'
+    deps: [bump:minor]
+    cmds:
+      - task: bump:push
+
+  release:major:
+    desc: 'Up major version and push into {{.REMOTE}}'
+    deps: [bump:major]
+    cmds:
+      - task: bump:push
+
+  bump:show:
+    desc: 'Show current version (dry run)'
+    cmds:
+      - bump-my-version bump patch --dry-run --verbose --allow-dirty

@@ -334,18 +334,11 @@ $RECYCLE.BIN/
 # Binaries for programs and plugins
 bin/
 
+# End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,goland+all,macos,windows,linux,go,goland
+
 # Helm dependencies
 /deployments/helm/**/charts/
 /deployments/helm/**/Chart.lock
 
 # Env file
 .env
-
-# End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,goland+all,macos,windows,linux,go,goland
-
-# Proto gen files
-/.cache/
-/.task/
-
-# Kreya files
-/kreya

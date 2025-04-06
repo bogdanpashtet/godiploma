@@ -4,6 +4,7 @@ configMap:
   enabled: true
   data:
     config.yaml: |
+      version: "v0.0.1"
       grpc:
         port: 13013
       appName: "godiploma"

@@ -1,0 +1,20 @@
+{
+  "id": "46fb29a5-7962-4b5d-b895-0c7b9f1872a0",
+  "importStreams": [
+    {
+      "id": "5498d945-1327-4ef9-8f54-04a2ce0ef4ae",
+      "name": "proto-file",
+      "importerName": "ProtoFile",
+      "createMissingOperations": true,
+      "options": {
+        "files": [
+          "../../../../go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v1.2.1",
+          "../protos/proto"
+        ],
+        "importPaths": []
+      }
+    }
+  ],
+  "authConfigs": [],
+  "certificates": []
+}
