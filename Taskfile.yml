@@ -8,7 +8,7 @@ vars:
   GOBIN: $(pwd)/bin
   # Lib versions.
   GO_VERSION: 1.24.0
-  REMOTE: origin
+  REMOTE: origin main
 
 tasks:
   default:
