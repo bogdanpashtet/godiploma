@@ -1,3 +1,3 @@
 # GO diploma project
 
-version: v0.3.10
+version: v0.3.11
