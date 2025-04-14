@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/bogdanpashtet/godiploma/internal/app/auth"
 	"github.com/bogdanpashtet/godiploma/internal/config"
 	grpcmw "github.com/grpc-ecosystem/go-grpc-middleware"
 	loggingmw "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -16,6 +17,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type Registrar interface {
@@ -24,9 +26,10 @@ type Registrar interface {
 type Params struct {
 	fx.In
 
-	Logger     *zap.Logger
-	Config     *config.AppConfig
-	Registrars []Registrar `group:"grpcRegistrars"`
+	Logger            *zap.Logger
+	Config            *config.AppConfig
+	HmacAuthenticator *auth.Authenticator
+	Registrars        []Registrar `group:"grpcRegistrars"`
 }
 
 type App struct {
@@ -42,7 +45,7 @@ func New(params Params) *App {
 		tagsmw.UnaryServerInterceptor(tagsmw.WithFieldExtractor(tagsmw.CodeGenRequestFieldExtractor)),
 		prometheusmw.UnaryServerInterceptor,
 		loggingmw.UnaryServerInterceptor(params.Logger),
-		authmw.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) { return ctx, nil }), // TODO: add auth
+		authmw.UnaryServerInterceptor(params.HmacAuthenticator.Authenticate),
 		validatormw.UnaryServerInterceptor(),
 	)))
 
@@ -59,6 +62,8 @@ func New(params Params) *App {
 		gRPCServer: gRPCServer,
 		cfg:        params.Config.Grpc,
 	}
+
+	reflection.Register(gRPCServer)
 
 	return app
 }

@@ -11,10 +11,37 @@
           "../../../../go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v1.2.1",
           "../protos/proto"
         ],
-        "importPaths": []
+        "importPaths": [],
+        "excludedFiles": []
       }
     }
   ],
-  "authConfigs": [],
+  "authConfigs": [
+    {
+      "name": "hmac",
+      "providerName": "static",
+      "id": "e2066ab4-2e5e-4df5-8e7d-e5c5a78c2194",
+      "options": {
+        "value": ""
+      },
+      "advancedOptions": {
+        "key": "Authorization",
+        "addToType": "header"
+      }
+    },
+    {
+      "name": "basic",
+      "providerName": "basic",
+      "id": "075356ff-66b5-48dd-a252-73092e186369",
+      "options": {
+        "username": "admin",
+        "password": "2c506705-aea4-4dd5-963b-c8ac1255e98a"
+      },
+      "advancedOptions": {
+        "key": "Authorization",
+        "addToType": "header"
+      }
+    }
+  ],
   "certificates": []
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bogdanpashtet/godiploma/internal/app/auth"
 	"github.com/bogdanpashtet/godiploma/internal/app/grpc"
 	"github.com/bogdanpashtet/godiploma/internal/config"
 	filev1 "github.com/bogdanpashtet/godiploma/internal/grpc/file/v1"
@@ -44,6 +45,7 @@ func DependenciesGraph() fx.Option {
 			context.Background,
 			config.New,
 			logger,
+			auth.NewAuthenticator,
 			fx.Annotate(
 				ciphersvc.New,
 				fx.As(new(filev1.Service)),

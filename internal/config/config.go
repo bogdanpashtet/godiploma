@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -16,6 +17,8 @@ type AppConfig struct {
 	HTTPHealth HTTPHealthConfig `yaml:"httpHealth"`
 	Metrics    MetricsConfig    `yaml:"metrics"`
 	Grpc       GRPCBase         `yaml:"grpc"`
+
+	Auth AuthConfig `yaml:"auth"`
 }
 
 func (c *AppConfig) Validate() error {
@@ -37,6 +40,12 @@ func New() (*AppConfig, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		log.Fatalf("yaml parcing error: %v", err)
 	}
+
+	hamcConfig, err := initAuthConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to init HMAC config: %w", err)
+	}
+	cfg.Auth = hamcConfig
 
 	return &cfg, nil
 }
