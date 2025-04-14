@@ -1,11 +1,7 @@
-# Default values for godiploma-chart.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: 452676057290.dkr.ecr.eu-central-1.amazonaws.com/bogdanpashtet/godiploma
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -41,7 +37,11 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 13013
+
+containerPort: 13013
+httpHealthPort: 8080
+metricsPort: 8081
 
 ingress:
   enabled: false
@@ -59,31 +59,32 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+resources:
+   limits:
+     cpu: 20m
+     memory: 128Mi
+   requests:
+     cpu: 10m
+     memory: 16Mi
 
 livenessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /livez
+    port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 20
+
 readinessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /readyz
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
 
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
