@@ -26,3 +26,13 @@
     filename = "Taskfile.yml"
     search = 'APP_VERSION: v{current_version}'
     replace = 'APP_VERSION: v{new_version}'
+
+[[tool.bumpversion.files]]
+    filename = "deployments/helm/godiploma/values.yaml"
+    search = 'version: "v{current_version}"'
+    replace = 'version: "v{new_version}"'
+
+[[tool.bumpversion.files]]
+    filename = "deployments/helm/godiploma/values.local.yaml"
+    search = 'tag: "v{current_version}"'
+    replace = 'tag: "v{new_version}"'

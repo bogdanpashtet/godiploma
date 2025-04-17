@@ -21,7 +21,13 @@ spec:
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- end }}
+      {{- else }}
+      # Обеспечиваем наличие аннотаций, даже если podAnnotations пуст
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: {{ .Values.metricsPort | quote }}
+      {{- end }} # Конец with .Values.podAnnotations для внешних аннотаций
       labels:
         {{- include "godiploma.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -35,6 +41,13 @@ spec:
       serviceAccountName: {{ include "godiploma.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "godiploma.fullname" . }}-config
+        {{- with .Values.volumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -61,21 +74,19 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-          # --- КОНЕЦ ВСТАВЛЯЕМОГО БЛОКА ---
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+              readOnly: true
+            {{- with .Values.volumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

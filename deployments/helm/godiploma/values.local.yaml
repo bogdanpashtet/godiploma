@@ -1,0 +1,5 @@
+# Use to start: helm secrets install godiploma-local . -f values.yaml -f values.secret.yaml -f values.local.yaml
+
+image:
+  repository: godiploma
+  tag: "v0.3.11"

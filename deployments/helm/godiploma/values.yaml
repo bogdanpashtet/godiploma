@@ -3,8 +3,20 @@ replicaCount: 1
 image:
   repository: 452676057290.dkr.ecr.eu-central-1.amazonaws.com/bogdanpashtet/godiploma
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+
+appConfig: |
+  grpc:
+    port: 13013
+  appName: "godiploma"
+  version: "v0.3.11"
+  httpHealth:
+    port: 8080
+    readyEndpoint: "/readyz"
+    liveEndpoint: "/livez"
+  metrics:
+    port: 8081
+    endpoint: "/metrics"
 
 imagePullSecrets: []
 nameOverride: ""
