@@ -13,14 +13,9 @@
     replace = 'version: "v{new_version}"'
 
 [[tool.bumpversion.files]]
-    filename = "deployments/helm/Chart.yaml"
+    filename = "deployments/helm/godiploma/Chart.yaml"
     search = 'appVersion: "{current_version}"'
     replace = 'appVersion: "{new_version}"'
-
-[[tool.bumpversion.files]]
-    filename = "deployments/helm/values.yaml"
-    search = 'version: "v{current_version}"'
-    replace = 'version: "v{new_version}"'
 
 [[tool.bumpversion.files]]
     filename = "README.md"

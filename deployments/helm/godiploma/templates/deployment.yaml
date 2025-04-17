@@ -51,6 +51,17 @@ spec:
             - name: http-metrics
               containerPort: {{ .Values.metricsPort }}
               protocol: TCP
+          env:
+            - name: AUTH_USER_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "godiploma.fullname" . }}-auth
+                  key: AUTH_USER_KEYS
+            {{- range $key, $value := .Values.envVars }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          # --- КОНЕЦ ВСТАВЛЯЕМОГО БЛОКА ---
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
