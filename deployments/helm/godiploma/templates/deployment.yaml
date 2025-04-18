@@ -22,12 +22,11 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- else }}
-      # Обеспечиваем наличие аннотаций, даже если podAnnotations пуст
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
         prometheus.io/port: {{ .Values.metricsPort | quote }}
-      {{- end }} # Конец with .Values.podAnnotations для внешних аннотаций
+      {{- end }}
       labels:
         {{- include "godiploma.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
