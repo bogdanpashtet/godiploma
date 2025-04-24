@@ -3,7 +3,7 @@ version: "3"
 
 vars:
   SERVICE_NAME: "godiploma"
-  APP_VERSION: v0.3.13
+  APP_VERSION: v0.3.14
   # Go env.
   GOBIN: $(pwd)/bin
   # Lib versions.
