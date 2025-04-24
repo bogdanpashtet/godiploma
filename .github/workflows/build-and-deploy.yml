@@ -76,13 +76,29 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Import PGP Key (If using PGP for SOPS)
+      - name: Import PGP Key
         env:
           PGP_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
         run: |
-          echo "$PGP_KEY" | gpg --import --batch --yes --pinentry-mode loopback --passphrase-stdin <<< "$PGP_PASSPHRASE" || true
-          echo "PGP Key imported"
+          echo "Attempting to import PGP key..."
+          IMPORT_OUTPUT=$(echo "$PGP_KEY" | gpg --import --batch --yes --pinentry-mode loopback --passphrase-fd 0 <<< "$PGP_PASSPHRASE" 2>&1)
+          IMPORT_STATUS=$?
+          echo "GPG import command output (passphrase attempt):"
+          echo "$IMPORT_OUTPUT"
+          if [ $IMPORT_STATUS -ne 0 ]; then
+            echo "GPG import with passphrase failed (Code: $IMPORT_STATUS). Retrying without passphrase..."
+            IMPORT_OUTPUT=$(echo "$PGP_KEY" | gpg --import --batch --yes 2>&1)
+            IMPORT_STATUS=$?
+            echo "GPG import command output (no passphrase attempt):"
+            echo "$IMPORT_OUTPUT"
+            if [ $IMPORT_STATUS -ne 0 ]; then
+               echo "::error::GPG key import failed definitively (Code: $IMPORT_STATUS)."
+               exit 1
+             fi
+          fi
+          echo "PGP Key import finished. Listing secret keys:"
+          gpg --list-secret-keys --fingerprint --with-colons | grep '^fpr' || echo "No secret keys found."
 
       - name: Configure kubectl context
         run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
