@@ -76,29 +76,26 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Import PGP Key
+      - name: Import PGP Key [DEBUG]
+        if: ${{ secrets.PGP_PRIVATE_KEY != '' }}
         env:
           PGP_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
         run: |
-          echo "Attempting to import PGP key..."
-          IMPORT_OUTPUT=$(echo "$PGP_KEY" | gpg --import --batch --yes --pinentry-mode loopback --passphrase-fd 0 <<< "$PGP_PASSPHRASE" 2>&1)
-          IMPORT_STATUS=$?
-          echo "GPG import command output (passphrase attempt):"
-          echo "$IMPORT_OUTPUT"
-          if [ $IMPORT_STATUS -ne 0 ]; then
-            echo "GPG import with passphrase failed (Code: $IMPORT_STATUS). Retrying without passphrase..."
-            IMPORT_OUTPUT=$(echo "$PGP_KEY" | gpg --import --batch --yes 2>&1)
-            IMPORT_STATUS=$?
-            echo "GPG import command output (no passphrase attempt):"
-            echo "$IMPORT_OUTPUT"
-            if [ $IMPORT_STATUS -ne 0 ]; then
-               echo "::error::GPG key import failed definitively (Code: $IMPORT_STATUS)."
-               exit 1
-             fi
-          fi
-          echo "PGP Key import finished. Listing secret keys:"
+          echo "Attempting to import PGP key directly..."
+          echo "$PGP_KEY" | gpg --verbose --import --batch --yes --pinentry-mode loopback --passphrase-fd 0 <<< "$PGP_PASSPHRASE"
+          IMPORT_STATUS=$? # Все еще сохраняем статус для проверки
+          
+          echo "GPG command finished with status: ${IMPORT_STATUS}"
+          
+          echo "Listing secret keys after import attempt:"
           gpg --list-secret-keys --fingerprint --with-colons | grep '^fpr' || echo "No secret keys found."
+          
+          if [ $IMPORT_STATUS -ne 0 ]; then
+            echo "::error::GPG key import failed with status ${IMPORT_STATUS}. See GPG output above."
+            exit 1
+          fi
+          echo "PGP Key import appears to have succeeded."
 
       - name: Configure kubectl context
         run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
