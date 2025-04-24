@@ -77,7 +77,6 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Import PGP Key [DEBUG]
-        if: ${{ secrets.PGP_PRIVATE_KEY != '' }}
         env:
           PGP_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
