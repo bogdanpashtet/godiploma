@@ -101,7 +101,6 @@ jobs:
             ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.K8S_NAMESPACE }} --create-namespace \
             -f ${{ env.HELM_CHART_PATH }}/values.yaml \
-            -f ${{ env.HELM_CHART_PATH }}/values-aws.yaml \
             -f ${{ env.HELM_CHART_PATH }}/values.secret.yaml \
             --set image.repository=${{ env.ECR_REPOSITORY_URI }} \
             --set image.tag=${{ env.IMAGE_TAG }} \
