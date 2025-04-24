@@ -1,0 +1,109 @@
+name: Build and Deploy to AWS EKS
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  AWS_REGION: eu-central-1
+  EKS_CLUSTER_NAME: godiploma-cluster
+  ECR_REPOSITORY_URI: 452676057290.dkr.ecr.eu-central-1.amazonaws.com/bogdanpashtet/godiploma
+  HELM_CHART_PATH: deployments/helm/godiploma
+  HELM_RELEASE_NAME: godiploma-app
+  K8S_NAMESPACE: godiploma-prod
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build_and_deploy:
+    name: Build, Push to ECR, and Deploy to EKS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Extract Docker metadata & tag
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.ECR_REPOSITORY_URI }}
+          tags: |
+            type=ref,event=tag
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image to ECR
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.x'
+
+      - name: Install SOPS
+        run: |
+          wget https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64 -O /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
+          sops --version
+
+      - name: Install helm-secrets plugin
+        run: helm plugin install https://github.com/jkroepke/helm-secrets
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Import PGP Key (If using PGP for SOPS)
+        if: ${{ secrets.PGP_PRIVATE_KEY != '' }}
+        env:
+          PGP_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        run: |
+          echo "$PGP_KEY" | gpg --import --batch --yes --pinentry-mode loopback --passphrase-stdin <<< "$PGP_PASSPHRASE" || true
+          echo "PGP Key imported"
+
+      - name: Configure kubectl context
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+      - name: Deploy using Helm Secrets
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
+          SOPS_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        run: |
+          echo "Deploying image tag: ${IMAGE_TAG}"
+          echo "Helm release name: ${{ env.HELM_RELEASE_NAME }}"
+          echo "Target namespace: ${{ env.K8S_NAMESPACE }}"
+          echo "Chart path: ${{ env.HELM_CHART_PATH }}"
+
+          helm secrets upgrade --install ${{ env.HELM_RELEASE_NAME }} \
+            ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.K8S_NAMESPACE }} --create-namespace \
+            -f ${{ env.HELM_CHART_PATH }}/values.yaml \
+            -f ${{ env.HELM_CHART_PATH }}/values-aws.yaml \
+            -f ${{ env.HELM_CHART_PATH }}/values.secret.yaml \
+            --set image.repository=${{ env.ECR_REPOSITORY_URI }} \
+            --set image.tag=${{ env.IMAGE_TAG }} \
+          echo "Helm deployment command executed."
