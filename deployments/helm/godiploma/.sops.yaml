@@ -1,4 +1,4 @@
 creation_rules:
-  - path_regex: 'secret.yaml$'
+  - path_regex: 'values.secret.yaml$'
     pgp: '0632DBFADDE6080826555B41E45DCBBA630AF05D'
     encrypted_regex: '^(authUserKey)$'
