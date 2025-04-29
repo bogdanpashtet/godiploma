@@ -34,7 +34,6 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Extract Docker metadata & tag
@@ -68,7 +67,6 @@ jobs:
         run: |
           wget https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64 -O /usr/local/bin/sops
           chmod +x /usr/local/bin/sops
-          sops --version
 
       - name: Install helm-secrets plugin
         run: helm plugin install https://github.com/jkroepke/helm-secrets
@@ -76,24 +74,24 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Import PGP Key [DEBUG]
+      - name: Import PGP Key
         env:
           PGP_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
         run: |
-          echo "Attempting to import PGP key directly..."
-          echo "$PGP_KEY" | gpg --verbose --import --batch --yes
-          IMPORT_STATUS=$?
-          
-          echo "GPG command finished with status: ${IMPORT_STATUS}"
-          
-          echo "Listing secret keys after import attempt:"
-          gpg --list-secret-keys --fingerprint --with-colons | grep '^fpr' || echo "No secret keys found."
-          
-          if [ $IMPORT_STATUS -ne 0 ]; then
-            echo "::error::GPG key import failed with status ${IMPORT_STATUS}. See GPG output above."
-            exit 1
-          fi
-          echo "PGP Key import appears to have succeeded."
+          echo "$PGP_KEY" > private.asc
+          gpg --batch --yes --import private.asc
+          echo "Imported GPG keys:"
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Create SOPS config in home
+        run: |
+          mkdir -p ~/.sops
+          cat > ~/.sops.yaml <<EOF
+          creation_rules:
+            - pgp: 0632DBFADDE6080826555B41E45DCBBA630AF05D
+              encrypted_regex: ^(authUserKey)$
+              path_regex: 'values.secret.yaml$'
+            EOF
 
       - name: Configure kubectl context
         run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
@@ -104,9 +102,6 @@ jobs:
           SOPS_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
         run: |
           echo "Deploying image tag: ${IMAGE_TAG}"
-          echo "Helm release name: ${{ env.HELM_RELEASE_NAME }}"
-          echo "Target namespace: ${{ env.K8S_NAMESPACE }}"
-          echo "Chart path: ${{ env.HELM_CHART_PATH }}"
           
           export GPG_TTY=$(tty || echo "/dev/console")
           mkdir -p ~/.gnupg
