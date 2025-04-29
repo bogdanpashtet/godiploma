@@ -83,14 +83,6 @@ jobs:
           echo "Imported GPG keys:"
           gpg --list-secret-keys --keyid-format LONG
 
-      - name: Create SOPS config in home
-        run: |
-          mkdir -p ~/.sops
-          echo "creation_rules:" > ~/.sops.yaml
-          echo "  - path_regex: 'values.secret.yaml\$'" >> ~/.sops.yaml
-          echo "    pgp: '0632DBFADDE6080826555B41E45DCBBA630AF05D'" >> ~/.sops.yaml
-          echo "    encrypted_regex: '^(authUserKey)\$'" >> ~/.sops.yaml
-
       - name: Configure kubectl context
         run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
 
