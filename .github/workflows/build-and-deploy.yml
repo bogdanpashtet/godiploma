@@ -96,6 +96,7 @@ jobs:
           IMAGE_TAG: ${{ github.ref_name }}
           SOPS_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           GNUPGHOME: /home/runner/.gnupg
+          SOPS_GPG_EXEC: gpg
         run: |
           echo "Deploying image tag: ${IMAGE_TAG}"
           
