@@ -77,13 +77,14 @@ jobs:
       - name: Import PGP Key
         env:
           PGP_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
+          GNUPGHOME: /home/runner/.gnupg
         run: |
           echo "$PGP_KEY" > private.asc
+          mkdir -p "$GNUPGHOME"
+          chmod 700 "$GNUPGHOME"
+          
           gpg --batch --yes --import private.asc
-      
-          mkdir -p ~/.gnupg
-          chmod 700 ~/.gnupg
-      
+          
           echo "Imported GPG keys:"
           gpg --list-secret-keys --keyid-format LONG
 
@@ -94,12 +95,12 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.ref_name }}
           SOPS_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          GNUPGHOME: /home/runner/.gnupg
         run: |
           echo "Deploying image tag: ${IMAGE_TAG}"
           
           export GPG_TTY=$(tty || echo "/dev/console")
-          mkdir -p ~/.gnupg
-          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          echo "allow-loopback-pinentry" >> "$GNUPGHOME/gpg-agent.conf"
           gpgconf --kill gpg-agent
           gpgconf --launch gpg-agent
           
