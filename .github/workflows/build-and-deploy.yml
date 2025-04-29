@@ -84,9 +84,8 @@ jobs:
           chmod 700 "$GNUPGHOME"
           
           gpg --batch --yes --import private.asc
+          gpg --export > "$GNUPGHOME/pubring.gpg"
 
-          gpg --export --armor > "$GNUPGHOME/pubring.gpg"
-          
           echo "Imported GPG keys:"
           gpg --list-secret-keys --keyid-format LONG
 
