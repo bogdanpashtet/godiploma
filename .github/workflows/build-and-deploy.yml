@@ -107,12 +107,19 @@ jobs:
           echo "Helm release name: ${{ env.HELM_RELEASE_NAME }}"
           echo "Target namespace: ${{ env.K8S_NAMESPACE }}"
           echo "Chart path: ${{ env.HELM_CHART_PATH }}"
-
+      
+          export GPG_TTY=$(tty || echo "/dev/console")
+          gpgconf --kill gpg-agent
+          mkdir -p ~/.gnupg
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --launch gpg-agent
+      
           helm secrets upgrade --install ${{ env.HELM_RELEASE_NAME }} \
-            ${{ env.HELM_CHART_PATH }} \
-            --namespace ${{ env.K8S_NAMESPACE }} --create-namespace \
-            -f ${{ env.HELM_CHART_PATH }}/values.yaml \
-            -f ${{ env.HELM_CHART_PATH }}/values.secret.yaml \
-            --set image.repository=${{ env.ECR_REPOSITORY_URI }} \
-            --set image.tag=${{ env.IMAGE_TAG }} \
+          ${{ env.HELM_CHART_PATH }} \
+          --namespace ${{ env.K8S_NAMESPACE }} --create-namespace \
+          -f ${{ env.HELM_CHART_PATH }}/values.yaml \
+          -f ${{ env.HELM_CHART_PATH }}/values.secret.yaml \
+          --set image.repository=${{ env.ECR_REPOSITORY_URI }} \
+          --set image.tag=${{ env.IMAGE_TAG }}
+          
           echo "Helm deployment command executed."
