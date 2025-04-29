@@ -79,11 +79,10 @@ jobs:
       - name: Import PGP Key [DEBUG]
         env:
           PGP_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
         run: |
           echo "Attempting to import PGP key directly..."
-          echo "$PGP_KEY" | gpg --verbose --import --batch --yes --pinentry-mode loopback --passphrase-fd 0 <<< "$PGP_PASSPHRASE"
-          IMPORT_STATUS=$? # Все еще сохраняем статус для проверки
+          echo "$PGP_KEY" | gpg --verbose --import --batch --yes
+          IMPORT_STATUS=$?
           
           echo "GPG command finished with status: ${IMPORT_STATUS}"
           
