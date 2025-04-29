@@ -80,11 +80,10 @@ jobs:
         run: |
           echo "$PGP_KEY" > private.asc
           gpg --batch --yes --import private.asc
-
+      
           mkdir -p ~/.gnupg
           chmod 700 ~/.gnupg
-          gpg --export --armor > ~/.gnupg/pubring.gpg
-          
+      
           echo "Imported GPG keys:"
           gpg --list-secret-keys --keyid-format LONG
 
