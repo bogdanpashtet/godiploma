@@ -34,5 +34,5 @@
 
 [[tool.bumpversion.files]]
     filename = "deployments/helm/godiploma/values.local.yaml"
-    search = 'tag: "v{current_version}"'
-    replace = 'tag: "v{new_version}"'
+    search = 'tag: "{current_version}"'
+    replace = 'tag: "{new_version}"'
