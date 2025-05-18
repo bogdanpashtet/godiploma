@@ -1,0 +1,29 @@
+# Use to start:
+# - export GPG_TTY=$(tty)
+# - helm install grafana . -f values.yaml
+
+kube-prometheus-stack:
+  grafana:
+    enabled: true
+    adminPassword: "admin-password"
+
+  prometheus:
+    prometheusSpec:
+      retention: "15d"
+
+  alertmanager:
+    enabled: false
+
+victoria-metrics-single:
+  server:
+    enabled: true
+    service:
+      type: ClusterIP
+      annotations: {}
+      labels: {}
+      port: 8428
+      targetPort: 8428
+    ingress:
+      enabled: false
+    persistentVolume:
+      enabled: false

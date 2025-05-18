@@ -1,4 +1,6 @@
-# Use to start: helm secrets install godiploma-local . -f values.yaml -f values.secret.yaml -f values.local.yaml
+# Use to start:
+# - export GPG_TTY=$(tty)
+# - helm secrets install godiploma-local . -f values.yaml -f values.secret.yaml -f values.local.yaml
 
 image:
   repository: godiploma
