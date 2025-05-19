@@ -29,9 +29,9 @@ const createStegoImageDuration = new Trend('grpc_req_create_stego_image_duration
 
 export const options = {
   stages: [
-    { duration: '10s', target: 2 },
-    { duration: '20s', target: 2 },
-    { duration: '5s', target: 0 },
+    { duration: '20s', target: 5 },
+    { duration: '40s', target: 10 },
+    { duration: '20s', target: 0 },
   ],
   thresholds: {
     'grpc_req_duration': ['p(95)<1500'],

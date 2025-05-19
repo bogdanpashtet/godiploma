@@ -177,3 +177,7 @@ tasks:
     cmds:
       - chmod +x ./scripts/collect_profiles.sh
       - ./scripts/collect_profiles.sh {{.SERVICE_NAME}}
+  k6:
+    desc: "Run k6 tests"
+    cmds:
+      - k6 run --out experimental-prometheus-rw  ./test/test1.js
