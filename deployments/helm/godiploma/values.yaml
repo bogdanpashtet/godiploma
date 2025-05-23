@@ -5,6 +5,10 @@ image:
   pullPolicy: IfNotPresent
   tag: ""
 
+envVars:
+#  GOGC: "200"
+#  GOMEMLIMIT: "64MiB"
+
 appConfig: |
   grpc:
     port: 13013

@@ -69,9 +69,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "godiploma.fullname" . }}-auth
                   key: AUTH_USER_KEYS
-            {{- range $key, $value := .Values.envVars }}
+            {{- with .Values.envVars }}
+            {{- range $key, $value := . }}
             - name: {{ $key }}
               value: {{ $value | quote }}
+            {{- end }}
             {{- end }}
           volumeMounts:
             - name: config-volume

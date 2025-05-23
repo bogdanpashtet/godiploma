@@ -717,8 +717,12 @@
       "id": 6,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -735,7 +739,8 @@
             "type": "victoriametrics-metrics-datasource",
             "uid": "${datasource}"
           },
-          "expr": "{__name__=\"k6_iterations_total\"}",
+          "editorMode": "code",
+          "expr": "rate(k6_iterations_total{scenario=\"default\"}[1m])",
           "range": true,
           "refId": "A"
         }
@@ -751,8 +756,8 @@
     "list": [
       {
         "current": {
-          "text": "victoriametrics-metrics-k6",
-          "value": "bemac9akp3ta8d"
+          "text": "victoriametrics-metrics-datasource",
+          "value": "cemqefrzepekge"
         },
         "label": "Data source",
         "name": "datasource",
@@ -765,12 +770,12 @@
     ]
   },
   "time": {
-    "from": "now-1h",
-    "to": "now"
+    "from": "2025-05-23T09:31:44.475Z",
+    "to": "2025-05-23T09:34:35.226Z"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "K6",
   "uid": "0aef381e-a8dd-4a18-b283-61d16f2016bd",
-  "version": 10
+  "version": 3
 }

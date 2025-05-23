@@ -151,6 +151,13 @@ tasks:
       - chmod +x ./scripts/base64_to_file.sh
       - ./scripts/base64_to_file.sh {{.CLI_ARGS}}
 
+  kill-profiler-ports:
+    desc: "Kill old pprof servers (ports 8080–8099)"
+    cmds:
+      - |
+        echo "[*] Killing processes on ports 8080–8099..."
+        lsof -ti tcp:8080-8099 | xargs -r kill -9 || echo "No ports to kill."
+
   profile:
     desc: "Collect & serve pprof profiles for a given service name"
     summary: |

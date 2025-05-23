@@ -10,7 +10,7 @@ PORT=8081
 BASE_URL="http://localhost:$PORT/debug/pprof"
 
 # Fetch profiling
-curl "${BASE_URL}/profile?seconds=120" -o "${DIR}/cpu.pprof" &
+curl "${BASE_URL}/profile?seconds=90" -o "${DIR}/cpu.pprof" &
 curl "${BASE_URL}/trace?seconds=30" -o "${DIR}/trace.trace" &
 curl "${BASE_URL}/heap" -o "${DIR}/heap.pprof" &
 curl "${BASE_URL}/goroutine" -o "${DIR}/goroutine.pprof" &

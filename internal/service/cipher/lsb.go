@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"sync"
 
 	filed "github.com/bogdanpashtet/godiploma/internal/domain/file"
 	"github.com/samber/lo"
@@ -17,7 +18,19 @@ import (
 
 var losslessFormats = []filed.Type{filed.TypeBMP, filed.TypePNG}
 
-//nolint:mnd,gocyclo,lll
+var imageRGBAPool = sync.Pool{
+	New: func() any {
+		return &image.RGBA{} // по умолчанию, пустой
+	},
+}
+
+var bufferPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
+}
+
+//nolint:mnd,gocyclo,lll,funlen,gocritic
 func cipherLSB(ctx context.Context, plaintext string, inputFile filed.File) (filed.File, error) {
 	if !lo.Contains(losslessFormats, inputFile.Metadata.Type) {
 		return filed.File{}, status.Error(codes.InvalidArgument, fmt.Sprintf("LSB is not suitable for lossy format '%s'. Returning original file.", inputFile.Metadata.Type))
@@ -43,7 +56,16 @@ func cipherLSB(ctx context.Context, plaintext string, inputFile filed.File) (fil
 		return filed.File{}, fmt.Errorf("image too small (%d bytes capacity) to hold data (%d bytes including length)", maxEmbeddableBytes, totalDataBytesToEmbed)
 	}
 
-	imgRGBA := image.NewRGBA(bounds)
+	// imgRGBA := image.NewRGBA(bounds)
+	imgRGBAAny := imageRGBAPool.Get()
+	defer imageRGBAPool.Put(imgRGBAAny)
+	imgRGBA, ok := imgRGBAAny.(*image.RGBA)
+	if !ok {
+		return filed.File{}, fmt.Errorf("internal error: imageRGBAPool returned unexpected type %T", imgRGBAAny)
+	}
+	if imgRGBA.Bounds().Dx() != width || imgRGBA.Bounds().Dy() != height {
+		imgRGBA = image.NewRGBA(bounds) // пересоздаём
+	}
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			imgRGBA.Set(x, y, img.At(x, y))
@@ -91,15 +113,24 @@ pixelLoop:
 		}
 	}
 
-	var buf bytes.Buffer
+	// var buf bytes.Buffer
+	bufAny := bufferPool.Get()
+	defer bufferPool.Put(bufAny)
+
+	buf, ok := bufAny.(*bytes.Buffer)
+	if !ok {
+		return filed.File{}, fmt.Errorf("internal error: bufferPool returned unexpected type %T", bufAny)
+	}
+	buf.Reset()
+
 	var encodeErr error
 	outputFileType := inputFile.Metadata.Type
 
 	switch outputFileType {
 	case filed.TypePNG:
-		encodeErr = png.Encode(&buf, imgRGBA)
+		encodeErr = png.Encode(buf, imgRGBA)
 	case filed.TypeBMP:
-		encodeErr = bmp.Encode(&buf, imgRGBA)
+		encodeErr = bmp.Encode(buf, imgRGBA)
 	default:
 		encodeErr = fmt.Errorf("unknown output format '%s'", outputFileType)
 	}

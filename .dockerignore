@@ -12,6 +12,7 @@ scripts
 test
 **/mock/
 **/mocks/
+grafana
 
 # Files
 **/*_test.go
